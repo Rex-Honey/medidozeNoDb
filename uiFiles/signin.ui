@@ -47,13 +47,13 @@ font-family:Nirmala UI</string>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <property name="leftMargin">
-         <number>390</number>
+         <number>450</number>
         </property>
         <property name="topMargin">
          <number>200</number>
         </property>
         <property name="rightMargin">
-         <number>390</number>
+         <number>450</number>
         </property>
         <property name="bottomMargin">
          <number>60</number>
@@ -111,6 +111,7 @@ color:&quot;#959292&quot;;
 font-weight: 400;
 line-height:20px;
 padding:(0px,5px);
+font-size:10pt
 }</string>
           </property>
           <property name="text">
