@@ -65,6 +65,10 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    # Set application font - this applies to ALL widgets
+    font = QFont("Nirmala UI", 9)
+    app.setFont(font)
     mainWindow = MainWindow()
     qssPath = os.path.join(os.path.dirname(__file__), 'qss', 'style.qss')
     with open(qssPath, 'r') as f:

@@ -18,8 +18,8 @@ class ServerConfigWindow(QWidget):
             self.setState(wid,"ok")
 
     def setState(self, widget, state):
-        widget.setProperty("server", state == "ok")
-        widget.setProperty("serverError", state == "err")
+        widget.setProperty("ok", state == "ok")
+        widget.setProperty("error", state == "err")
         widget.style().unpolish(widget)
         widget.style().polish(widget)
 
