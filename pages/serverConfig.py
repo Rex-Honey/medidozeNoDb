@@ -99,7 +99,7 @@ class ServerConfigWindow(QWidget):
                 documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
                 medidozeDir = os.path.join(documentsDir, 'medidoze')
                 os.makedirs(medidozeDir, exist_ok=True)
-                with open(os.path.join(medidozeDir, 'config.json'), 'w', encoding='utf-8') as f:
+                with open(os.path.join(medidozeDir, 'configN.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
                 self.createTables()
