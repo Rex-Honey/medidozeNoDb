@@ -2,11 +2,10 @@ QWidget#mainWindow {
     background-color: lightblue;
 }
 
-QFrame#frame {
+QFrame{
     background: #F4F7F9;
     border-radius: 10%;
 }
-
 QLineEdit[ok=true] {
     background: #FFFFFF;
     border-radius: 10%;
@@ -18,5 +17,15 @@ QLineEdit[error=true] {
     background: #FFFFFF;
     border-radius: 10%;
     padding: 14px 10px;
+    border: 1px solid red;
+}
+QFrame[ok=true] {
+    background:#FFFFFF;
+    border:1px solid #e1e4e6;
+    border-radius:10%;
+}
+QFrame[error=true] {
+    background:#FFFFFF;
+    border-radius:10%;
     border: 1px solid red;
 }
