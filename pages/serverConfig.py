@@ -1,4 +1,4 @@
-import os,pyodbc,json,threading
+import os,pyodbc,json,threading,time
 from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
 from PyQt6.QtCore import pyqtSignal
@@ -69,8 +69,27 @@ class ServerConfigWindow(QWidget):
                 'PWD='f'{password};'
             )
 
-            try:
-                self.local_conn = pyodbc.connect(connectionString)
+                # Connection result storage
+            connection_result = {'success': False, 'connection': None, 'error': None}
+            
+            def attempt_connection():
+                try:
+                    conn = pyodbc.connect(connectionString)
+                    connection_result['success'] = True
+                    connection_result['connection'] = conn
+                except Exception as e:
+                    connection_result['error'] = e
+            
+            # Start connection attempt in a separate thread
+            conn_thread = threading.Thread(target=attempt_connection)
+            conn_thread.daemon = True
+            conn_thread.start()
+            
+            # Wait for 2 seconds maximum
+            conn_thread.join(timeout=2)
+            
+            if connection_result['success']:
+                self.local_conn = connection_result['connection']
                 self.config=config
                 print("Connection successful!")
                 documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
@@ -80,17 +99,22 @@ class ServerConfigWindow(QWidget):
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
                 self.local_conn.close()
-
-            except pyodbc.Error as ex:
-                self.infoServerConfig.setText("Error connecting to server")
+            else:
+                if connection_result['error']:
+                    print(connection_result['error'])
+                else:
+                    print("Connection timed out")
+                self.infoServerConfig.setText("Error connecting to server. Please check your server details.")
                 self.infoServerConfig.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
                 QTimer.singleShot(4000, self.clear_info_messages)
-                sqlstate = ex.args[0]
-                print(f"SQL Server error occurred: {sqlstate}")
-                print(f"Details: {str(ex)}")
-            print()
+                return
+
         except Exception as e:
+            self.infoServerConfig.setText("Something went wrong. Please try again.")
+            self.infoServerConfig.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
+            QTimer.singleShot(4000, self.clear_info_messages)
             print(e)
+            print()
 
     def createTables(self):
         try:
