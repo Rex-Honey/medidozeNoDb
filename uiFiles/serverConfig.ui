@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1248</width>
+    <height>840</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <property name="leftMargin">
+         <number>20</number>
+        </property>
+        <property name="topMargin">
+         <number>10</number>
+        </property>
+        <property name="rightMargin">
+         <number>20</number>
+        </property>
+        <property name="bottomMargin">
+         <number>10</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="leftMargin">
+           <number>400</number>
+          </property>
+          <property name="topMargin">
+           <number>110</number>
+          </property>
+          <property name="rightMargin">
+           <number>400</number>
+          </property>
+          <property name="bottomMargin">
+           <number>110</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="styleSheet">
+               <string notr="true">QLabel{
+color:&quot;#020014&quot;;
+font-weight:900;
+font-size:13pt
+}</string>
+              </property>
+              <property name="text">
+               <string>Server IP</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtServerIP">
+              <property name="font">
+               <font>
+                <family>Nirmala UI</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="placeholderText">
+               <string>Enter Server IP address</string>
+              </property>
+              <property name="serverError" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="server" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errServerIP">
+              <property name="styleSheet">
+               <string notr="true">color:red</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="styleSheet">
+               <string notr="true">QLabel{
+color:&quot;#020014&quot;;
+font-weight:900;
+font-size:13pt
+}</string>
+              </property>
+              <property name="text">
+               <string>Server Name</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtServerName">
+              <property name="font">
+               <font>
+                <family>Nirmala UI</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="placeholderText">
+               <string>Enter Server Name</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errServerName">
+              <property name="styleSheet">
+               <string notr="true">color:red</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="styleSheet">
+               <string notr="true">QLabel{
+color:&quot;#020014&quot;;
+font-weight:900;
+font-size:13pt
+}</string>
+              </property>
+              <property name="text">
+               <string>TCP Port</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtPort">
+              <property name="font">
+               <font>
+                <family>Nirmala UI</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="placeholderText">
+               <string>Enter TCP Port Number</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errTcpPort">
+              <property name="styleSheet">
+               <string notr="true">color:red</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="styleSheet">
+               <string notr="true">QLabel{
+color:&quot;#020014&quot;;
+font-weight:900;
+font-size:13pt
+}</string>
+              </property>
+              <property name="text">
+               <string>Username</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtUsername">
+              <property name="font">
+               <font>
+                <family>Nirmala UI</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="placeholderText">
+               <string>Enter Username</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errUsername">
+              <property name="styleSheet">
+               <string notr="true">color:red</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="styleSheet">
+               <string notr="true">QLabel{
+color:&quot;#020014&quot;;
+font-weight:900;
+font-size:13pt
+}</string>
+              </property>
+              <property name="text">
+               <string>Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtPassword">
+              <property name="font">
+               <font>
+                <family>Nirmala UI</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="placeholderText">
+               <string>Enter Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errPassword">
+              <property name="styleSheet">
+               <string notr="true">color:red</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="btnConnect">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+background:#033E89;
+color:#FFFFFF;
+font-weight: 700;
+border-radius:10%;
+padding:13px 30px;
+font-size:12pt;
+font-family:Nirmala UI
+}</string>
+            </property>
+            <property name="text">
+             <string>Connect</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item alignment="Qt::AlignRight|Qt::AlignTop">
+         <widget class="QLabel" name="infoServerConfig">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">padding:10px</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
