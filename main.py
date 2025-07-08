@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QStackedLayout
 from PyQt6.QtCore import Qt, QStandardPaths
 from PyQt6.QtGui import QFont, QIcon
-import json, pyodbc, sys, os
+import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
     def checkConfig(self):
         try:
             documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
-            with open(os.path.join(documentsDir, 'medidoze', 'config2.json'), 'r', encoding='utf-8') as f:
+            with open(os.path.join(documentsDir, 'medidoze', 'configN.json'), 'r', encoding='utf-8') as f:
                 config = json.load(f)
             connString = (
                 f"DRIVER={{SQL Server}};"
