@@ -17,10 +17,7 @@
    <item>
     <widget class="QFrame" name="frame_4">
      <property name="styleSheet">
-      <string notr="true">background:#F4F7F9;
-border-radius:10%;
-font-size:11pt;
-font-family:Nirmala UI</string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -66,11 +63,14 @@ font-family:Nirmala UI</string>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="styleSheet">
+           <string notr="true">margin-bottom:10px</string>
+          </property>
           <property name="text">
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>../images/login_img.png</pixmap>
+           <pixmap resource="../resr.qrc">:/files/images/login_img.png</pixmap>
           </property>
          </widget>
         </item>
@@ -111,7 +111,8 @@ color:&quot;#959292&quot;;
 font-weight: 400;
 line-height:20px;
 padding:(0px,5px);
-font-size:10pt
+font-size:10pt;
+margin-bottom:10px
 }</string>
           </property>
           <property name="text">
@@ -144,29 +145,27 @@ font-size:10pt
               <height>55</height>
              </size>
             </property>
-            <property name="styleSheet">
-             <string notr="true">background:#FFFFFF;
-border:1px solid #e1e4e6;
-border-radius:10%;</string>
-            </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
+            <property name="frameUserName" stdset="0">
+             <bool>true</bool>
+            </property>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <property name="spacing">
               <number>0</number>
              </property>
              <property name="leftMargin">
-              <number>10</number>
+              <number>15</number>
              </property>
              <property name="topMargin">
               <number>0</number>
              </property>
              <property name="rightMargin">
-              <number>0</number>
+              <number>25</number>
              </property>
              <property name="bottomMargin">
               <number>0</number>
@@ -200,11 +199,12 @@ border-radius:10%;</string>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="txt_username">
+              <widget class="QLineEdit" name="txtUsername">
                <property name="styleSheet">
                 <string notr="true">QLineEdit{
 border:none;
 padding:14px 15px;
+font-size:12pt
 }</string>
                </property>
                <property name="text">
@@ -219,7 +219,7 @@ padding:14px 15px;
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="err_username">
+           <widget class="QLabel" name="errUsername">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -228,7 +228,9 @@ padding:14px 15px;
             </property>
             <property name="styleSheet">
              <string notr="true">QLabel{
-color:red;}</string>
+color:red;
+font-size:8pt;
+}</string>
             </property>
             <property name="text">
              <string>---</string>
@@ -253,11 +255,6 @@ color:red;}</string>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="styleSheet">
-             <string notr="true">background:#FFFFFF;
-border:1px solid #e1e4e6;
-border-radius:10%;</string>
-            </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
@@ -269,7 +266,7 @@ border-radius:10%;</string>
               <number>0</number>
              </property>
              <property name="leftMargin">
-              <number>10</number>
+              <number>15</number>
              </property>
              <property name="topMargin">
               <number>0</number>
@@ -301,7 +298,7 @@ border-radius:10%;</string>
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap>../images/password.svg</pixmap>
+                <pixmap resource="../resr.qrc">:/files/images/password.svg</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -311,7 +308,7 @@ border-radius:10%;</string>
              <item>
               <widget class="QLineEdit" name="txtPassword">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -319,7 +316,8 @@ border-radius:10%;</string>
                <property name="styleSheet">
                 <string notr="true">QLineEdit{
 padding:14px 15px;
-border:none
+border:none;
+font-size:12pt
 }</string>
                </property>
                <property name="text">
@@ -357,7 +355,7 @@ border:none
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap>../images/show_eye.png</pixmap>
+                <pixmap resource="../resr.qrc">:/files/images/show_eye.png</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -388,7 +386,7 @@ border:none
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap>../images/hidden_eye.png</pixmap>
+                <pixmap resource="../resr.qrc">:/files/images/hidden_eye.png</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -403,9 +401,9 @@ border:none
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="err_password">
+           <widget class="QLabel" name="errPassword">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -413,6 +411,7 @@ border:none
             <property name="styleSheet">
              <string notr="true">QLabel{
 color:red;
+font-size:8pt;
 }</string>
             </property>
             <property name="text">
@@ -431,7 +430,7 @@ color:red;
            <number>10</number>
           </property>
           <property name="bottomMargin">
-           <number>5</number>
+           <number>10</number>
           </property>
           <item alignment="Qt::AlignLeft">
            <widget class="QCheckBox" name="checkBox">
@@ -443,7 +442,7 @@ color:red;
             </property>
             <property name="styleSheet">
              <string notr="true">QCheckBox{
-background:#F4F7F9;
+font-size:11pt
 }</string>
             </property>
             <property name="text">
@@ -462,6 +461,7 @@ background:#F4F7F9;
             <property name="styleSheet">
              <string notr="true">QLabel{
 color:#48C9E3;
+font-size:11pt
 }</string>
             </property>
             <property name="text">
@@ -475,7 +475,7 @@ color:#48C9E3;
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_signin">
+         <widget class="QPushButton" name="btnSignin">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -484,7 +484,6 @@ color:#48C9E3;
           </property>
           <property name="font">
            <font>
-            <family>Nirmala UI</family>
             <pointsize>12</pointsize>
             <weight>87</weight>
             <bold>true</bold>
@@ -537,6 +536,8 @@ font-size:12pt
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resr.qrc"/>
+ </resources>
  <connections/>
 </ui>
