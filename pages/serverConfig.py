@@ -98,7 +98,7 @@ class ServerConfigWindow(QWidget):
                 with open(os.path.join(medidozeDir, 'config2.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
-                self.local_conn.close()
+                self.createTables()
             else:
                 if connection_result['error']:
                     print(connection_result['error'])
@@ -138,46 +138,6 @@ class ServerConfigWindow(QWidget):
             local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users') CREATE TABLE users ({', '.join(columns)})")
 
             columns = [
-                'id INT PRIMARY KEY IDENTITY',
-                'medication VARCHAR(50) NOT NULL',
-                'pump_type VARCHAR(50) NOT NULL',
-                'pump_position VARCHAR(50)',
-                'status BIT NOT NULL DEFAULT 1',
-                'createdBy VARCHAR(50) NOT NULL',
-                'updatedBy VARCHAR(50) NOT NULL',
-                'createdDate DATETIME NOT NULL',
-                'updatedDate DATETIME NOT NULL'
-            ]
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'din_groups') CREATE TABLE din_groups ({', '.join(columns)})")
-
-            columns = [
-                'id INT PRIMARY KEY IDENTITY',
-                'din_number BIGINT NOT NULL',
-                'din_group_id INT NOT NULL',
-                'status BIT NOT NULL DEFAULT 1',
-                'createdBy VARCHAR(50) NOT NULL',
-                'updatedBy VARCHAR(50) NOT NULL',
-                'createdDate DATETIME NOT NULL',
-                'updatedDate DATETIME NOT NULL',
-                # 'FOREIGN KEY (din_group_id) REFERENCES din_groups(id)'
-            ]
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'din') CREATE TABLE din ({', '.join(columns)})")
-
-            columns = [
-                'id INT PRIMARY KEY IDENTITY',
-                'database_type VARCHAR(50) NOT NULL',
-                'server VARCHAR(50) NOT NULL',
-                'database_name VARCHAR(50) NOT NULL',
-                'username VARCHAR(50) NOT NULL',
-                'password VARCHAR(50) NOT NULL',
-                'createdBy VARCHAR(50) NOT NULL',
-                'updatedBy VARCHAR(50) NOT NULL',
-                'createdDate DATETIME NOT NULL',
-                'updatedDate DATETIME NOT NULL'
-            ]
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'medidoze_databases') CREATE TABLE medidoze_databases ({', '.join(columns)})")
-
-            columns = [
                     'id INT PRIMARY KEY IDENTITY',
                     'date_of_dispense VARCHAR(50) NOT NULL',
                     'patient_first_name VARCHAR(30) NOT NULL',
@@ -196,47 +156,6 @@ class ServerConfigWindow(QWidget):
                     'updatedDate DATETIME NOT NULL'
                 ]
             local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'logs') CREATE TABLE logs ({', '.join(columns)})")
-            columns = [
-                'id INT PRIMARY KEY IDENTITY',
-                'rxID INT NOT NULL',
-                'patientID BIGINT',
-                'rxDrug VARCHAR(50)',
-                'rxOrigDate DATETIME',
-                'rxStopDate DATETIME',
-                'rxQty FLOAT',
-                'rxDays INT NOT NULL',
-                'rxType VARCHAR(20)',
-                'rxDin INT NOT NULL',
-                'rxSig VARCHAR(MAX)',
-                'rxDrFirst VARCHAR(50)',
-                'rxDrLast VARCHAR(50)',
-                'scDays VARCHAR(10)',
-                'createdBy VARCHAR(50) NOT NULL',
-                'updatedBy VARCHAR(50) NOT NULL',
-                'createdDate DATETIME NOT NULL', 
-                'updatedDate DATETIME NOT NULL'
-            ]
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'rx') CREATE TABLE rx ({', '.join(columns)})")
-
-            local_cursor.execute("""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'refill') CREATE TABLE refill (
-                id INT PRIMARY KEY IDENTITY,
-                rxID INT NOT NULL,
-                patientID BIGINT,
-                reefDate DATETIME,
-                prevDate DATETIME,
-                witness FLOAT,
-                carry VARCHAR(50),
-                frequency VARCHAR(20) DEFAULT 'OD',
-                emergencyCount INT,
-                totProcessing FLOAT,
-                totRemaining FLOAT,
-                reReason CHAR(2),
-                reJudge DATETIME,
-                createdBy VARCHAR(50) NOT NULL,
-                updatedBy VARCHAR(50) NOT NULL,
-                createdDate DATETIME NOT NULL, 
-                updatedDate DATETIME NOT NULL
-            )""")
 
             columns = [
                 'id BIGINT PRIMARY KEY',
@@ -282,36 +201,22 @@ class ServerConfigWindow(QWidget):
             ]
             local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instantDoseLogs') CREATE TABLE instantDoseLogs ({', '.join(columns)})")
 
-            # columns = [
-            #     'id int PRIMARY KEY IDENTITY',
-            #     'name VARCHAR(20)',
-            #     'date DATETIME'
-            # ]
-            # local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'TB1') CREATE TABLE TB1 ({', '.join(columns)})")
-
-            # columns = [
-            #     'id int PRIMARY KEY',
-            #     'tbid INT'
-            # ]
-            # local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'TB2') CREATE TABLE TB2 ({', '.join(columns)})")
+            print("================ Tables Created ================")
 
             current_datetime=datetime.now()
-            phone=9999999999
             createdDate = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
             admin_password = sha256("admin".encode()).hexdigest()
             super_admin_pass = sha256("a".encode()).hexdigest()
             
-            query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'sys') INSERT INTO users (uid, password, firstName, lastName, phone, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES ('sys','{super_admin_pass}','Super','Admin',{phone}, '', 'Y', 'Y', 'N', 'Super Admin', 'Super Admin', '{createdDate}', '{createdDate}')"
+            query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'sys') INSERT INTO users (uid, password, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+            local_cursor.execute(query, ('sys', super_admin_pass, 'Super', 'Admin', '', 'Y', 'Y', 'N', 'Super Admin', 'Super Admin', createdDate, createdDate))
+            print("================ Super Admin Added ================")
+
+            query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'admin') INSERT INTO users (uid, password, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES ('admin','{admin_password}','Medidoze Technologies','','', 'Y', 'Y', 'N', 'Super Admin', 'Super Admin', '{createdDate}', '{createdDate}')"
             local_cursor.execute(query)
-
-            query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'admin') INSERT INTO users (uid, password, firstName, lastName, phone, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES ('admin','{admin_password}','Medidoze Technologies','',{phone}, '', 'Y', 'Y', 'N', 'Super Admin', 'Super Admin', '{createdDate}', '{createdDate}')"
-            local_cursor.execute(query)
-
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM medidoze_databases where database_type='live') INSERT INTO medidoze_databases (database_type, server, database_name, username, password, createdBy, updatedBy, createdDate, updatedDate) VALUES ('live','{self.config['server']}','','{self.config['username']}', '{self.config['password']}','Super Admin', 'Super Admin', '{createdDate}','{createdDate}')")
-
+            print("================ Admin Added ================")
             self.local_conn.commit()
             local_cursor.close()
-            print("================ Tables Created ================")
         except Exception as e:
             print(e)
             local_cursor.rollback()
