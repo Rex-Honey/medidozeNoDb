@@ -6,6 +6,7 @@ from PyQt6.QtCore import QTimer
 from datetime import datetime
 from hashlib import sha256
 from PyQt6.QtCore import QStandardPaths
+from otherFiles.common import setState
 
 class ServerConfigWindow(QWidget):
     serverSetUpDone = pyqtSignal(dict,str)
@@ -15,14 +16,7 @@ class ServerConfigWindow(QWidget):
         uic.loadUi(os.path.join(rootDir, 'uiFiles', 'serverConfig.ui'), self)
         self.btnConnect.clicked.connect(self.connectServer)
         for wid in (self.txtServerIP,self.txtServerName,self.txtPort,self.txtUsername,self.txtPassword):
-            self.setState(wid,"ok")
-
-    def setState(self, widget, state):
-        widget.setProperty("ok", state == "ok")
-        widget.setProperty("error", state == "err")
-        widget.style().unpolish(widget)
-        widget.style().polish(widget)
-
+            setState(wid,"ok")
 
     def connectServer(self):
         try:
@@ -34,13 +28,16 @@ class ServerConfigWindow(QWidget):
                 (self.txtPassword, self.errPassword, "Password can't be blank"),
             ]
 
+            fieldsEmpty=False
             for widget, error_label, error_msg in fields:
-                self.setState(widget, "ok")
+                setState(widget, "ok")
                 error_label.setText("")
                 if widget.text().strip() == "":
-                    self.setState(widget, "err")
+                    setState(widget, "err")
                     error_label.setText(error_msg)
-                    return
+                    fieldsEmpty=True
+            if fieldsEmpty:
+                return
 
             serverIP=self.txtServerIP.text()
             serverPort=self.txtPort.text()
@@ -58,7 +55,14 @@ class ServerConfigWindow(QWidget):
                     "server":f"{serverIP},{serverPort}\\{serverName}",
                     "local_database":"medidoze",
                     "username":f"{username}",
-                    "password":f"{password}"
+                    "password":f"{password}",
+                    "local_database":"medidoze",
+                    "calibrationDateLeft":"",
+                    "calibrationDateRight":"",
+                    "oatRxPharmacyId":"",
+                    "webhookFillApiUrl":"",
+                    "oatRxGetAiDatesApiUrl":"",
+                    "oatApiToken":""
             }
             
             connectionString = (
@@ -95,7 +99,7 @@ class ServerConfigWindow(QWidget):
                 documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
                 medidozeDir = os.path.join(documentsDir, 'medidoze')
                 os.makedirs(medidozeDir, exist_ok=True)
-                with open(os.path.join(medidozeDir, 'config2.json'), 'w', encoding='utf-8') as f:
+                with open(os.path.join(medidozeDir, 'config.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
                 self.createTables()
