@@ -3,7 +3,7 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 import os
 from pages.settings import SettingsWindow
-
+from pages.pageContainer import PageContainer
 class MainAppWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -74,13 +74,19 @@ class MainAppWindow(QWidget):
         self.stack = QStackedLayout()
         for label, _ in sidebar_items:
             if label == "Settings":
-                self.stack.addWidget(SettingsWindow())  # Load the .ui file for Settings
+                page_widget = SettingsWindow()
             else:
-                self.stack.addWidget(QLabel(f"{label} Page"))
+                page_widget = QLabel(f"{label} Page")
+            self.stack.addWidget(PageContainer(label, page_widget))
 
         # Add sidebar and stack to main layout
         main_layout.addWidget(sidebar_widget)
-        main_layout.addLayout(self.stack)
+
+        content_widget = QWidget()
+        
+        content_widget.setLayout(self.stack)
+        content_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        main_layout.addWidget(content_widget, stretch=1)
         self.setLayout(main_layout)
 
     def _divider(self):
