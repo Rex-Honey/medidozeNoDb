@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="files">
+    <file>images/down_arrow.svg</file>
     <file>images/email.svg</file>
     <file>images/hidden_eye.png</file>
     <file>images/icon_email.png</file>
