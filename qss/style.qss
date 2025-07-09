@@ -29,3 +29,39 @@ QFrame[error=true] {
     border-radius:10%;
     border: 1px solid red;
 }
+
+/* Sidebar background */
+#SidebarWidget {
+    background-color: #033E89;
+    border-radius: 12px;
+}
+
+/* Sidebar logo */
+#SidebarLogo {
+    background: #033E89;
+}
+
+/* Sidebar buttons */
+QPushButton[sidebarButton="true"] {
+    background: transparent;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 4px 0;
+    text-align: left;
+    font-size: 15px;
+    font-family: "Nirmala UI";
+    border: none;
+}
+QPushButton[sidebarButton="true"]:hover {
+    background: #1e5a99;
+}
+QPushButton[sidebarButton="true"]:checked {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: bold;
+}
+QPushButton[sidebarButton="true"]:focus {
+    outline: none;
+    border: none;
+}
