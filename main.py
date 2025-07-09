@@ -4,6 +4,7 @@ from PyQt6.QtGui import QFont, QIcon
 import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
+from pages.mainApp import MainAppWindow
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -27,6 +28,10 @@ class MainWindow(QMainWindow):
         self.signInWindow = SignInWindow()
         self.signInWindow.loginSuccess.connect(self.loginSuccess)
         self.stackLayout.addWidget(self.signInWindow)
+
+        self.mainAppWindow = MainAppWindow()
+        self.stackLayout.addWidget(self.mainAppWindow)
+
         self.checkConfig()
 
     def checkConfig(self):
@@ -64,6 +69,7 @@ class MainWindow(QMainWindow):
 
     def loginSuccess(self, userData):
         print(f"Login successful: {userData}")
+        self.stackLayout.setCurrentWidget(self.mainAppWindow)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
