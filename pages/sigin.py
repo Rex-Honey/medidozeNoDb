@@ -1,12 +1,12 @@
 from PyQt6.QtWidgets import QWidget, QLineEdit
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6 import uic
-import os
+import os,pyodbc
 from hashlib import sha256
 from otherFiles.common import dictfetchall, setState
 
 class SignInWindow(QWidget):
-    loginSuccess = pyqtSignal(str,int,str)
+    loginSuccess = pyqtSignal(dict)
     def __init__(self):
         super().__init__()
         rootDir=os.path.dirname(os.path.dirname(__file__))
@@ -22,6 +22,12 @@ class SignInWindow(QWidget):
         self.errPassword.setText("")
         for frm in (self.frame_6, self.frame_7):
             setState(frm, "ok")
+
+    def setConfig(self,connString):
+        try:
+            self.local_conn = pyodbc.connect(connString)
+        except Exception as e:
+            print(e)
 
     def toggle_password_visibility(self, event):
         if self.txtPassword.echoMode() == QLineEdit.EchoMode.Password:
@@ -85,6 +91,6 @@ class SignInWindow(QWidget):
                 self.txtUsername.setText("")
                 self.txtPassword.setText("")
                 self.txtUsername.setFocus()
-                self.loginSuccess.emit(row['uid'],row['oatRxId'],row['isAdmin'])
+                self.loginSuccess.emit(row)
         except Exception as e:
             print(e)

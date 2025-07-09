@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
             conn = pyodbc.connect(connString)
             print("Connection successful!")
             conn.close()
+            self.signInWindow.setConfig(connString)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
@@ -57,11 +58,12 @@ class MainWindow(QMainWindow):
             self.serverConfigWindow.serverSetUpDone.connect(self.serverSetUpDone)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
-    def serverSetUpDone(self, config, username):
+    def serverSetUpDone(self, config, connString):
         self.stackLayout.setCurrentWidget(self.signInWindow)
+        self.signInWindow.setConfig(connString)
 
-    def loginSuccess(self, username, password):
-        print(f"Login successful: {username}, {password}")
+    def loginSuccess(self, userData):
+        print(f"Login successful: {userData}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
