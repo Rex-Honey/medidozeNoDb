@@ -17,7 +17,7 @@
    <item>
     <widget class="QFrame" name="settings">
      <property name="styleSheet">
-      <string notr="true">background:#FFFFFF;</string>
+      <string notr="true">background:#FFFFFF</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -175,7 +175,7 @@ background:#F4F7F9;
 padding:10px;
 }
 #selectPrinterCombo::drop-down{
-image:url(:/icon/images/down_arrow.svg);
+image:url(:/files/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #selectPrinterCombo QListView:item{
@@ -459,7 +459,7 @@ background:#F4F7F9;
 padding:7px;
 }
 #comboLabelType::drop-down{
-image:url(:/icon/images/down_arrow.svg);
+image:url(:/files/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #comboLabelType QListView:item{
@@ -540,7 +540,7 @@ background:#F4F7F9;
 padding:7px;
 }
 #comboFontSize::drop-down{
-image:url(:/icon/images/down_arrow.svg);
+image:url(:/files/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #comboFontSize QListView:item{
@@ -1280,6 +1280,8 @@ font-weight:700</string>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resr.qrc"/>
+ </resources>
  <connections/>
 </ui>
