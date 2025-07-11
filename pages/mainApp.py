@@ -6,6 +6,7 @@ from pages.settings import SettingsWindow
 from pages.primePump import PrimeWindow
 from pages.calibration import CalibrationWindow
 from pages.pageContainer import PageContainer
+from pages.dashboard import DashboardWindow
 
 class MainAppWindow(QWidget):
     def __init__(self):
@@ -43,7 +44,7 @@ class MainAppWindow(QWidget):
         # Sidebar buttons (icon, label)
         self.buttons = []
         sidebar_items = [
-            ("Dashboard", "dash.png", PrimeWindow()),
+            ("Dashboard", "dash.png", DashboardWindow()),
             ("Dispense", "dispense.png",PrimeWindow()),
             ("Instant Dose", "dispense.png", PrimeWindow()),
             ("Prime Pump", "dispense.png", PrimeWindow()),

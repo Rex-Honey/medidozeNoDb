@@ -465,7 +465,7 @@ background:#F4F7F9;
 padding:7px;
 }
 #comboLabelType::drop-down{
-image:url(:/files/images/down_arrow.svg);
+image:url(:/icon/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #comboLabelType QListView:item{
@@ -546,7 +546,7 @@ background:#F4F7F9;
 padding:7px;
 }
 #comboFontSize::drop-down{
-image:url(:/files/images/down_arrow.svg);
+image:url(:/icon/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #comboFontSize QListView:item{
@@ -1287,7 +1287,7 @@ font-weight:700</string>
   </layout>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../resr.qrc"/>
  </resources>
  <connections/>
 </ui>
