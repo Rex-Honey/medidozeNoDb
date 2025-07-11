@@ -3,6 +3,7 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 import os
 from pages.settings import SettingsWindow
+from pages.primePump import PrimeWindow
 from pages.pageContainer import PageContainer
 class MainAppWindow(QWidget):
     def __init__(self):
@@ -40,21 +41,22 @@ class MainAppWindow(QWidget):
         # Sidebar buttons (icon, label)
         self.buttons = []
         sidebar_items = [
-            ("Dashboard", "dash.png"),
-            ("Dispense", "dispense.png"),
-            ("Instant Dose", "dispense.png"),
-            ("Prime Pump", "dispense.png"),
-            ("Calibrate Pump", "dispense.png"),
-            ("Patients", "patient_icon.png"),
-            ("DIN Management", "list.svg"),
-            ("Pharmacy Users", "users.svg"),
-            ("Stock Management", "list.svg"),
-            ("Reports", "list.svg"),
-            ("Settings", "setting.svg"),
-            ("Logout", "logout.svg"),
+            ("Dashboard", "dash.png", PrimeWindow()),
+            ("Dispense", "dispense.png",PrimeWindow()),
+            ("Instant Dose", "dispense.png", PrimeWindow()),
+            ("Prime Pump", "dispense.png", PrimeWindow()),
+            ("Calibrate Pump", "dispense.png", PrimeWindow()),
+            ("Patients", "patient_icon.png", PrimeWindow()),
+            ("DIN Management", "list.svg", PrimeWindow()),
+            ("Pharmacy Users", "users.svg", PrimeWindow()),
+            ("Stock Management", "list.svg", PrimeWindow()),
+            ("Reports", "list.svg", PrimeWindow()),
+            ("Settings", "setting.svg", SettingsWindow()),
+            ("Logout", "logout.svg", PrimeWindow()),
         ]
 
-        for idx, (label, icon_file) in enumerate(sidebar_items):
+        self.stack = QStackedLayout()
+        for idx, (label, icon_file, page_widget) in enumerate(sidebar_items):
             btn = QPushButton(f"  {label}")
             btn.setIcon(QIcon(os.path.join(module_dir, "images", icon_file)))
             btn.setIconSize(QSize(20, 20))
@@ -62,22 +64,12 @@ class MainAppWindow(QWidget):
             btn.setProperty("sidebarButton", True)  # For QSS
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.clicked.connect(lambda checked, i=idx: self.switch_page(i))
             sidebar_layout.addWidget(btn)
             self.buttons.append(btn)
-            if label == "Settings":
-                btn.setChecked(True)
-            btn.clicked.connect(lambda checked, i=idx: self.switch_page(i))
+            self.stack.addWidget(PageContainer(label, page_widget))
 
         sidebar_layout.addStretch()
-
-        # Central stacked layout for pages
-        self.stack = QStackedLayout()
-        for label, _ in sidebar_items:
-            if label == "Settings":
-                page_widget = SettingsWindow()
-            else:
-                page_widget = QLabel(f"{label} Page")
-            self.stack.addWidget(PageContainer(label, page_widget))
 
         # Add sidebar and stack to main layout
         main_layout.addWidget(sidebar_widget)
