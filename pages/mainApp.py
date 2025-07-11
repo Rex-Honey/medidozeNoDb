@@ -9,6 +9,8 @@ from pages.pageContainer import PageContainer
 from pages.dashboard import DashboardWindow
 from pages.din import DinWindow
 from pages.patients import PatientsWindow
+from pages.pharmacyUsers import PharmacyUsersWindow
+from pages.instantDose import InstantDoseWindow
 
 class MainAppWindow(QWidget):
     def __init__(self):
@@ -48,12 +50,12 @@ class MainAppWindow(QWidget):
         sidebar_items = [
             ("Dashboard", "dash.png", DashboardWindow()),
             ("Dispense", "dispense.png",PrimeWindow()),
-            ("Instant Dose", "dispense.png", PrimeWindow()),
+            ("Instant Dose", "dispense.png", InstantDoseWindow()),
             ("Prime Pump", "dispense.png", PrimeWindow()),
             ("Calibrate Pump", "dispense.png", CalibrationWindow()),
             ("Patients", "patient_icon.png", PatientsWindow()),
             ("DIN Management", "list.svg", DinWindow()),
-            ("Pharmacy Users", "users.svg", PrimeWindow()),
+            ("Pharmacy Users", "users.svg", PharmacyUsersWindow()),
             ("Stock Management", "list.svg", PrimeWindow()),
             ("Reports", "list.svg", PrimeWindow()),
             ("Settings", "setting.svg", SettingsWindow()),
