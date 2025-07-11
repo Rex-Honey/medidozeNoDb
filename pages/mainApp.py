@@ -7,6 +7,7 @@ from pages.primePump import PrimeWindow
 from pages.calibration import CalibrationWindow
 from pages.pageContainer import PageContainer
 from pages.dashboard import DashboardWindow
+from pages.din import DinWindow
 
 class MainAppWindow(QWidget):
     def __init__(self):
@@ -50,7 +51,7 @@ class MainAppWindow(QWidget):
             ("Prime Pump", "dispense.png", PrimeWindow()),
             ("Calibrate Pump", "dispense.png", CalibrationWindow()),
             ("Patients", "patient_icon.png", PrimeWindow()),
-            ("DIN Management", "list.svg", PrimeWindow()),
+            ("DIN Management", "list.svg", DinWindow()),
             ("Pharmacy Users", "users.svg", PrimeWindow()),
             ("Stock Management", "list.svg", PrimeWindow()),
             ("Reports", "list.svg", PrimeWindow()),
