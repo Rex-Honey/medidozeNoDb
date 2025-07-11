@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QFrame" name="settings">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="styleSheet">
       <string notr="true">background:#FFFFFF</string>
      </property>
@@ -175,7 +181,7 @@ background:#F4F7F9;
 padding:10px;
 }
 #selectPrinterCombo::drop-down{
-image:url(:/files/images/down_arrow.svg);
+image:url(:/files/images/hidden_eye.png);
 padding:17px 15px 0px 0px;
 }
 #selectPrinterCombo QListView:item{

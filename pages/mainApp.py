@@ -83,7 +83,7 @@ class MainAppWindow(QWidget):
         main_layout.addWidget(sidebar_widget)
 
         content_widget = QWidget()
-        
+        content_widget.setContentsMargins(0, 0, 0, 0)
         content_widget.setLayout(self.stack)
         content_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         main_layout.addWidget(content_widget, stretch=1)

@@ -67,13 +67,6 @@ QPushButton[sidebarButton="true"]:focus {
     border: none;
 }
 QFrame#PageFrame {
-                background:#F4F7F9
-                border-radius: 16px;
-                padding: 24px;
-        }
-#pageTitleLabel {
-    font-size: 28px;
-    font-weight: bold;
-    color: #222;
-    margin-bottom: 8px;
+        background:#F4F7F9
+        border-radius: 16px;
 }
