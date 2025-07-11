@@ -4,7 +4,9 @@ from PyQt6.QtCore import Qt, QSize
 import os
 from pages.settings import SettingsWindow
 from pages.primePump import PrimeWindow
+from pages.calibration import CalibrationWindow
 from pages.pageContainer import PageContainer
+
 class MainAppWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -16,7 +18,7 @@ class MainAppWindow(QWidget):
         # Main layout: sidebar + main content
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(5)
+        main_layout.setSpacing(10)
 
         # Sidebar
         sidebar_widget = QWidget()
@@ -45,7 +47,7 @@ class MainAppWindow(QWidget):
             ("Dispense", "dispense.png",PrimeWindow()),
             ("Instant Dose", "dispense.png", PrimeWindow()),
             ("Prime Pump", "dispense.png", PrimeWindow()),
-            ("Calibrate Pump", "dispense.png", PrimeWindow()),
+            ("Calibrate Pump", "dispense.png", CalibrationWindow()),
             ("Patients", "patient_icon.png", PrimeWindow()),
             ("DIN Management", "list.svg", PrimeWindow()),
             ("Pharmacy Users", "users.svg", PrimeWindow()),
