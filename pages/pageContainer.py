@@ -12,7 +12,7 @@ class PageContainer(QWidget):
         # pageWidget.setStyleSheet("border:1px solid blue")
 
         titleLabel = QLabel(pageName)
-        titleLabel.setObjectName("pageTitleLabel")
+        titleLabel.setObjectName("containerTitleLabel")
         titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         titleLabel.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         # titleLabel.setStyleSheet("border:1px solid red;margin-bottom: 10px;")
@@ -25,9 +25,10 @@ class PageContainer(QWidget):
         frame.setObjectName("PageFrame")
         frameLayout = QVBoxLayout(frame)
         frameLayout.setSpacing(0)
-        label=QLabel("hello")
+        label=QLabel("F1 - Prime | F2 - Calibration | F3 - Dispense | F4 - Instant Dose | F5 - View Patients | F6 - Stock Management")
+        label.setObjectName("containerInfoLabel")
         label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        label.setStyleSheet("border:1px solid blue;")
+        # label.setStyleSheet("border:1px solid blue;")
 
         frameLayout.addWidget(titleLabel)
         frameLayout.addWidget(pageWidget)

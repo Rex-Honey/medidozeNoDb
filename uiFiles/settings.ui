@@ -181,7 +181,7 @@ background:#F4F7F9;
 padding:10px;
 }
 #selectPrinterCombo::drop-down{
-image:url(:/files/images/hidden_eye.png);
+image:url(:/icon/images/down_arrow.svg);
 padding:17px 15px 0px 0px;
 }
 #selectPrinterCombo QListView:item{
@@ -1287,7 +1287,7 @@ font-weight:700</string>
   </layout>
  </widget>
  <resources>
-  <include location="../resr.qrc"/>
+  <include location="../resource.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -67,6 +67,15 @@ QPushButton[sidebarButton="true"]:focus {
     border: none;
 }
 QFrame#PageFrame {
-        background:#F4F7F9
+        background:#F4F7F9;
         border-radius: 16px;
+}
+QLabel#containerTitleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 16px 0 8px 0;
+    margin-left: 8px;
+}
+QLabel#containerInfoLabel {
+    margin-left: 8px;
 }

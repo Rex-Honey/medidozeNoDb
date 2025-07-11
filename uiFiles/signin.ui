@@ -70,7 +70,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../resr.qrc">:/files/images/login_img.png</pixmap>
+           <pixmap>:/files/images/login_img.png</pixmap>
           </property>
          </widget>
         </item>
@@ -295,7 +295,7 @@ font-size:8pt;
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../resr.qrc">:/files/images/password.svg</pixmap>
+                <pixmap resource="../resource.qrc">:/icon/images/password.svg</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -352,7 +352,7 @@ font-size:12pt
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../resr.qrc">:/files/images/show_eye.png</pixmap>
+                <pixmap>:/files/images/show_eye.png</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -383,7 +383,7 @@ font-size:12pt
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../resr.qrc">:/files/images/hidden_eye.png</pixmap>
+                <pixmap>:/files/images/hidden_eye.png</pixmap>
                </property>
                <property name="scaledContents">
                 <bool>true</bool>
@@ -535,6 +535,7 @@ font-size:12pt
  </widget>
  <resources>
   <include location="../resr.qrc"/>
+  <include location="../resource.qrc"/>
  </resources>
  <connections/>
 </ui>
