@@ -179,6 +179,8 @@ margin:0px 2px 0px 2px
                 <string notr="true">#selectPrinterCombo{
 background:#F4F7F9;
 padding:10px;
+border:none;
+border-radius:10%
 }
 #selectPrinterCombo::drop-down{
 image:url(:/icon/images/down_arrow.svg);
@@ -462,7 +464,9 @@ font-size:12pt
                  <property name="styleSheet">
                   <string notr="true">#comboLabelType{
 background:#F4F7F9;
-padding:7px;
+padding:8px;
+border:none;
+border-radius:10%
 }
 #comboLabelType::drop-down{
 image:url(:/icon/images/down_arrow.svg);
@@ -544,6 +548,8 @@ font-size:12pt
                   <string notr="true">#comboFontSize{
 background:#F4F7F9;
 padding:7px;
+border:none;
+border-radius:10%
 }
 #comboFontSize::drop-down{
 image:url(:/icon/images/down_arrow.svg);

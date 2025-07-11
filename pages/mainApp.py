@@ -11,6 +11,7 @@ from pages.din import DinWindow
 from pages.patients import PatientsWindow
 from pages.pharmacyUsers import PharmacyUsersWindow
 from pages.instantDose import InstantDoseWindow
+from pages.dispense import DispenseWindow
 
 class MainAppWindow(QWidget):
     def __init__(self):
@@ -49,7 +50,7 @@ class MainAppWindow(QWidget):
         self.buttons = []
         sidebar_items = [
             ("Dashboard", "dash.png", DashboardWindow()),
-            ("Dispense", "dispense.png",PrimeWindow()),
+            ("Dispense", "dispense.png",DispenseWindow()),
             ("Instant Dose", "dispense.png", InstantDoseWindow()),
             ("Prime Pump", "dispense.png", PrimeWindow()),
             ("Calibrate Pump", "dispense.png", CalibrationWindow()),
