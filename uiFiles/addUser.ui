@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
-    <height>721</height>
+    <width>816</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,7 +104,7 @@
            <number>20</number>
           </property>
           <item alignment="Qt::AlignRight">
-           <widget class="QPushButton" name="btn_signup">
+           <widget class="QPushButton" name="btnAdduser">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
@@ -138,7 +138,7 @@ font-size:11pt</string>
            </widget>
           </item>
           <item alignment="Qt::AlignLeft">
-           <widget class="QPushButton" name="btn_cancel_add_user">
+           <widget class="QPushButton" name="btnCancel">
             <property name="font">
              <font>
               <pointsize>11</pointsize>
@@ -445,12 +445,6 @@ font-size:12pt</string>
               <pointsize>11</pointsize>
              </font>
             </property>
-            <property name="styleSheet">
-             <string notr="true">border-radius:10%;
-padding:10px;
-border:1px solid #e1e4e6;
-font-size:11pt</string>
-            </property>
             <property name="text">
              <string/>
             </property>
@@ -580,7 +574,7 @@ background:#FFFFFF;
            <number>0</number>
           </property>
           <item alignment="Qt::AlignTop">
-           <widget class="QPushButton" name="btn_load_img">
+           <widget class="QPushButton" name="btnLoadImage">
             <property name="font">
              <font>
               <pointsize>9</pointsize>
@@ -607,7 +601,7 @@ font-size:9pt</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_remove_img">
+           <widget class="QPushButton" name="btnRemoveImg">
             <property name="font">
              <font>
               <pointsize>9</pointsize>
@@ -648,7 +642,7 @@ font-size:9pt</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_36">
            <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-            <widget class="QLabel" name="lbl_img">
+            <widget class="QLabel" name="lblImg">
              <property name="styleSheet">
               <string notr="true">border-radius:45%;</string>
              </property>

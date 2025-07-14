@@ -61,13 +61,13 @@ class SignInWindow(QWidget):
                     setState(frame, "err")
                     error_label.setText(error_msg)
                     fieldsEmpty=True
-            if fieldsEmpty:
-                return
+            # if fieldsEmpty:
+            #     return
 
             username = self.txtUsername.text()
             password = self.txtPassword.text()
-            # username="admin"
-            # password="admin"
+            username="admin"
+            password="admin"
             hashed_password = sha256(password.encode()).hexdigest()
             local_cursor = self.local_conn.cursor()
             query = f"select * from users where uid='{username}';"

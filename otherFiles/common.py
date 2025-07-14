@@ -5,6 +5,39 @@ from PyQt6.QtCore import Qt, QRect
 rootDir = os.path.dirname(os.path.dirname(__file__))
 defaultUserImage = os.path.join(rootDir, "images", "user.jpg")
 
+def find_widget_recursive(parent, target_type):
+    """Recursively search for a widget of type target_type inside parent."""
+    if isinstance(parent, target_type):
+        return parent
+    if hasattr(parent, 'children'):
+        for child in parent.children():
+            result = find_widget_recursive(child, target_type)
+            if result is not None:
+                return result
+    return None
+
+def switchToPage(currentWidget, pageClass):
+    try:
+        from pages.pageContainer import PageContainer
+        parent = currentWidget.parentWidget()
+        while parent is not None:
+            if hasattr(parent, "stack"):
+                break
+            parent = parent.parentWidget()
+        if parent is not None:
+            for i in range(parent.stack.count()):
+                widget = parent.stack.widget(i)
+                if isinstance(widget, PageContainer):
+                    # Recursively search for PharmacyUsersWindow inside this PageContainer
+                    if find_widget_recursive(widget, pageClass):
+                        parent.stack.setCurrentWidget(widget)
+                        return
+            print(f"{pageClass.__name__} not found in stack!")
+        else:
+            print("Main stack not found!")
+    except Exception as e:
+        print(e)
+
 def dictfetchall(cursor):
     '''
     Return all rows from a cursor as a dict
@@ -19,10 +52,11 @@ def dictfetchall(cursor):
 def setState(widget, state):
     widget.setProperty("ok", state == "ok")
     widget.setProperty("error", state == "err")
+    widget.setProperty("disabled", state == "disable")
     widget.style().unpolish(widget)
     widget.style().polish(widget)
 
-def round_image(imgdata, imgtype='jpg', size=120):
+def roundImage(imgdata, imgtype='jpg', size=120):
             """Return a ``QPixmap`` from *imgdata* masked with a smooth circle.
 
             *imgdata* are the raw image bytes, *imgtype* denotes the image type.

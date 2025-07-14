@@ -22,10 +22,11 @@ def get_rounded_pixmap(pixmap, size):
     return rounded
 
 class PharmacyUsersWindow(QWidget):
-    def __init__(self, config, connString):
+    def __init__(self, config, connString, userData):
         super().__init__()
         self.config = config
         self.connString = connString
+        self.userData = userData
         self.local_conn = pyodbc.connect(connString)
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
@@ -39,7 +40,7 @@ class PharmacyUsersWindow(QWidget):
             from pages.pageContainer import PageContainer
 
             # Create the add user page
-            add_user_widget = AddUserWindow(self.config, self.connString)
+            add_user_widget = AddUserWindow(self.config, self.connString,self.userData)
             add_user_page = PageContainer("Add User", add_user_widget)
 
             # Find the main app's stack (walk up the parent chain)
@@ -169,3 +170,10 @@ class PharmacyUsersWindow(QWidget):
             self.addDataToUserTable(data)
         except Exception as e:
             print(e)
+
+    def clear_info_messages(self):
+            try:
+                self.infoViewUsers.setText("")
+                self.infoViewUsers.setStyleSheet("background:none")
+            except Exception as e:
+                print(e)

@@ -61,13 +61,14 @@ class MainWindow(QMainWindow):
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
     def serverSetUpDone(self, config, connString):
-        self.mainAppWindow = MainAppWindow(config, connString)
-        self.stackLayout.addWidget(self.mainAppWindow)
-
+        self.config = config
+        self.connString = connString
         self.stackLayout.setCurrentWidget(self.signInWindow)
         self.signInWindow.setConfig(connString)
 
     def loginSuccess(self, userData):
+        self.mainAppWindow = MainAppWindow(self.config, self.connString, userData)
+        self.stackLayout.addWidget(self.mainAppWindow)
         print(f"Login successful: {userData}")
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
 

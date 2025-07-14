@@ -14,10 +14,11 @@ from pages.instantDose import InstantDoseWindow
 from pages.dispense import DispenseWindow
 
 class MainAppWindow(QWidget):
-    def __init__(self, config, connString):
+    def __init__(self, config, connString, userData):
         super().__init__()
         self.config = config
         self.connString = connString
+        self.userData = userData
         self.local_conn = pyodbc.connect(connString)
         self.initUI()
 
@@ -52,18 +53,18 @@ class MainAppWindow(QWidget):
         # Sidebar buttons (icon, label)
         self.buttons = []
         sidebar_items = [
-            ("Dashboard", "dash.png", DashboardWindow(self.config, self.connString)),
-            ("Dispense", "dispense.png",DispenseWindow(self.config, self.connString)),
-            ("Instant Dose", "dispense.png", InstantDoseWindow(self.config, self.connString)),
-            ("Prime Pump", "dispense.png", PrimeWindow(self.config, self.connString)),
-            ("Calibrate Pump", "dispense.png", CalibrationWindow(self.config, self.connString)),
-            ("Patients", "patient_icon.png", PatientsWindow(self.config, self.connString)),
-            ("DIN Management", "list.svg", DinWindow(self.config, self.connString)),
-            ("Pharmacy Users", "users.svg", PharmacyUsersWindow(self.config, self.connString)),
-            ("Stock Management", "list.svg", PrimeWindow(self.config, self.connString)),
-            ("Reports", "list.svg", PrimeWindow(self.config, self.connString)),
-            ("Settings", "setting.svg", SettingsWindow(self.config, self.connString)),
-            ("Logout", "logout.svg", PrimeWindow(self.config, self.connString)),
+            ("Dashboard", "dash.png", DashboardWindow(self.config, self.connString, self.userData)),
+            ("Dispense", "dispense.png",DispenseWindow(self.config, self.connString, self.userData)),
+            ("Instant Dose", "dispense.png", InstantDoseWindow(self.config, self.connString, self.userData)),
+            ("Prime Pump", "dispense.png", PrimeWindow(self.config, self.connString, self.userData)),
+            ("Calibrate Pump", "dispense.png", CalibrationWindow(self.config, self.connString, self.userData)),
+            ("Patients", "patient_icon.png", PatientsWindow(self.config, self.connString, self.userData)),
+            ("DIN Management", "list.svg", DinWindow(self.config, self.connString, self.userData)),
+            ("Pharmacy Users", "users.svg", PharmacyUsersWindow(self.config, self.connString, self.userData)),
+            ("Stock Management", "list.svg", PrimeWindow(self.config, self.connString, self.userData)),
+            ("Reports", "list.svg", PrimeWindow(self.config, self.connString, self.userData)),
+            ("Settings", "setting.svg", SettingsWindow(self.config, self.connString, self.userData)),
+            ("Logout", "logout.svg", PrimeWindow(self.config, self.connString, self.userData)),
         ]
 
         self.stack = QStackedLayout()
