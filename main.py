@@ -29,9 +29,6 @@ class MainWindow(QMainWindow):
         self.signInWindow.loginSuccess.connect(self.loginSuccess)
         self.stackLayout.addWidget(self.signInWindow)
 
-        self.mainAppWindow = MainAppWindow()
-        self.stackLayout.addWidget(self.mainAppWindow)
-
         self.checkConfig()
 
     def checkConfig(self):
@@ -64,11 +61,14 @@ class MainWindow(QMainWindow):
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
     def serverSetUpDone(self, config, connString):
+        self.mainAppWindow = MainAppWindow(config, connString)
         self.stackLayout.setCurrentWidget(self.signInWindow)
         self.signInWindow.setConfig(connString)
 
     def loginSuccess(self, userData):
         print(f"Login successful: {userData}")
+        self.mainAppWindow = MainAppWindow()
+        self.stackLayout.addWidget(self.mainAppWindow)
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
 
 if __name__ == "__main__":

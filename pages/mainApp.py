@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QStackedLayout, QLabel, QSizePolicy
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
-import os
+import pyodbc,os
 from pages.settings import SettingsWindow
 from pages.primePump import PrimeWindow
 from pages.calibration import CalibrationWindow
@@ -14,8 +14,11 @@ from pages.instantDose import InstantDoseWindow
 from pages.dispense import DispenseWindow
 
 class MainAppWindow(QWidget):
-    def __init__(self):
+    def __init__(self, config, connString):
         super().__init__()
+        self.config = config
+        self.connString = connString
+        self.local_conn = pyodbc.connect(connString)
         self.initUI()
 
     def initUI(self):
@@ -49,18 +52,18 @@ class MainAppWindow(QWidget):
         # Sidebar buttons (icon, label)
         self.buttons = []
         sidebar_items = [
-            ("Dashboard", "dash.png", DashboardWindow()),
-            ("Dispense", "dispense.png",DispenseWindow()),
-            ("Instant Dose", "dispense.png", InstantDoseWindow()),
-            ("Prime Pump", "dispense.png", PrimeWindow()),
-            ("Calibrate Pump", "dispense.png", CalibrationWindow()),
-            ("Patients", "patient_icon.png", PatientsWindow()),
-            ("DIN Management", "list.svg", DinWindow()),
-            ("Pharmacy Users", "users.svg", PharmacyUsersWindow()),
-            ("Stock Management", "list.svg", PrimeWindow()),
-            ("Reports", "list.svg", PrimeWindow()),
-            ("Settings", "setting.svg", SettingsWindow()),
-            ("Logout", "logout.svg", PrimeWindow()),
+            ("Dashboard", "dash.png", DashboardWindow(self.config, self.connString)),
+            ("Dispense", "dispense.png",DispenseWindow(self.config, self.connString)),
+            ("Instant Dose", "dispense.png", InstantDoseWindow(self.config, self.connString)),
+            ("Prime Pump", "dispense.png", PrimeWindow(self.config, self.connString)),
+            ("Calibrate Pump", "dispense.png", CalibrationWindow(self.config, self.connString)),
+            ("Patients", "patient_icon.png", PatientsWindow(self.config, self.connString)),
+            ("DIN Management", "list.svg", DinWindow(self.config, self.connString)),
+            ("Pharmacy Users", "users.svg", PharmacyUsersWindow(self.config, self.connString)),
+            ("Stock Management", "list.svg", PrimeWindow(self.config, self.connString)),
+            ("Reports", "list.svg", PrimeWindow(self.config, self.connString)),
+            ("Settings", "setting.svg", SettingsWindow(self.config, self.connString)),
+            ("Logout", "logout.svg", PrimeWindow(self.config, self.connString)),
         ]
 
         self.stack = QStackedLayout()
@@ -76,6 +79,7 @@ class MainAppWindow(QWidget):
             sidebar_layout.addWidget(btn)
             self.buttons.append(btn)
             self.stack.addWidget(PageContainer(label, page_widget))
+        self.switch_page(0)
 
         sidebar_layout.addStretch()
 
