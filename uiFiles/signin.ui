@@ -393,8 +393,8 @@ font-size:12pt
             </layout>
             <zorder>txtPassword</zorder>
             <zorder>lblHideEye</zorder>
-            <zorder>lblShowEye</zorder>
             <zorder>label_6</zorder>
+            <zorder>lblShowEye</zorder>
            </widget>
           </item>
           <item>

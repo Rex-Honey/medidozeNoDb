@@ -1,3 +1,9 @@
+import os
+from PyQt6.QtGui import QImage, QPixmap, QPainter, QBrush, QWindow
+from PyQt6.QtCore import Qt, QRect
+
+rootDir = os.path.dirname(os.path.dirname(__file__))
+defaultUserImage = os.path.join(rootDir, "images", "user.jpg")
 
 def dictfetchall(cursor):
     '''
@@ -15,3 +21,52 @@ def setState(widget, state):
     widget.setProperty("error", state == "err")
     widget.style().unpolish(widget)
     widget.style().polish(widget)
+
+def round_image(imgdata, imgtype='jpg', size=120):
+            """Return a ``QPixmap`` from *imgdata* masked with a smooth circle.
+
+            *imgdata* are the raw image bytes, *imgtype* denotes the image type.
+
+            The returned image will have a size of *size* × *size* pixels.
+
+            """
+            # Load image and convert to 32-bit ARGB (adds an alpha channel)
+            image = QImage.fromData(imgdata, imgtype)
+            image.convertToFormat(QImage.Format.Format_ARGB32)
+
+            # Crop image to a square
+            imgsize = min(image.width(), image.height())
+            rect = QRect(
+                int((image.width() - imgsize) / 2),
+                int((image.height() - imgsize) / 2),
+                imgsize,
+                imgsize,
+            )
+
+            image = image.copy(rect)
+
+            # Create the output image with the same dimensions and an alpha channel
+            # and make it completely transparent
+            out_img = QImage(imgsize, imgsize, QImage.Format.Format_ARGB32)
+            out_img.fill(Qt.GlobalColor.transparent)
+
+            # Create a texture brush and paint a circle with the original image onto
+            # the output image
+            brush = QBrush(image)  # Create texture brush
+            painter = QPainter(out_img)  # Paint the output image
+            painter.setBrush(brush)  # Use the image texture brush
+            # pen = QPen(Qt.GlobalColor.transparent) # Don't draw an outline
+            painter.setPen(Qt.PenStyle.NoPen)
+            # painter.setPen(Qt.NoPen)  # Don't draw an outline
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)  # Use AA
+            painter.drawEllipse(0, 0, imgsize, imgsize)  # Actually draw the circle
+            painter.end()  # We are done (segfault if you forget this)
+
+            # Convert the image to a pixmap and rescale it.  Take pixel ratio into
+            # account to get a sharp image on retina displays
+            pr = QWindow().devicePixelRatio()
+            pm = QPixmap.fromImage(out_img)
+            pm.setDevicePixelRatio(pr)
+            size *= int(pr)
+            pm = pm.scaled(size, size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            return pm
