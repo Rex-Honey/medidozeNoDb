@@ -164,6 +164,7 @@ class PharmacyUsersWindow(QWidget):
 
     def fetchAllUsers(self):
         try:
+            print("--Fetching All Users..")
             localCursor = self.localConn.cursor()
             localCursor.execute("SELECT * FROM users where isSoftDlt='N' and uid != 'sys'")
             data=dictfetchall(localCursor)

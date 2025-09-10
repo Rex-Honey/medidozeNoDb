@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
     def loginSuccess(self, userData):
         self.mainAppWindow = MainAppWindow(self.config, self.connString, userData)
         self.stackLayout.addWidget(self.mainAppWindow)
-        print(f"Login successful: {userData}")
+        # print(f"Login successful: {userData}")
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
 
 if __name__ == "__main__":

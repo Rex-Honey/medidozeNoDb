@@ -19,80 +19,81 @@ class MainAppWindow(QWidget):
         self.config = config
         self.connString = connString
         self.userData = userData
-        self.local_conn = pyodbc.connect(connString)
+        self.localConn = pyodbc.connect(connString)
         self.initUI()
 
     def initUI(self):
-        module_dir = os.path.dirname(os.path.dirname(__file__))
+        moduleDir = os.path.dirname(os.path.dirname(__file__))
 
         # Main layout: sidebar + main content
-        main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(10)
+        mainLayout = QHBoxLayout(self)
+        mainLayout.setContentsMargins(10, 10, 10, 10)
+        mainLayout.setSpacing(10)
 
         # Sidebar
-        sidebar_widget = QWidget()
-        sidebar_widget.setObjectName("SidebarWidget")
-        sidebar_widget.setFixedWidth(260)
-        sidebar_layout = QVBoxLayout(sidebar_widget)
-        sidebar_layout.setContentsMargins(10, 10, 10, 10)
-        sidebar_layout.setSpacing(0)
+        sidebarWidget = QWidget()
+        sidebarWidget.setObjectName("SidebarWidget")
+        sidebarWidget.setFixedWidth(260)
+        sidebarLayout = QVBoxLayout(sidebarWidget)
+        sidebarLayout.setContentsMargins(10, 10, 10, 10)
+        sidebarLayout.setSpacing(0)
 
         # Logo
         logo = QLabel()
         logo.setObjectName("SidebarLogo")
-        logo_pixmap = QPixmap(os.path.join(module_dir, "images", "dashboardLogo.png"))
-        logo.setPixmap(logo_pixmap)
+        logoPixmap = QPixmap(os.path.join(moduleDir, "images", "dashboardLogo.png"))
+        logo.setPixmap(logoPixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignLeft)
         
-        sidebar_layout.addWidget(logo)
-        sidebar_layout.addSpacing(20)
-        sidebar_layout.addWidget(self._divider())
-        sidebar_layout.addSpacing(10)
+        sidebarLayout.addWidget(logo)
+        sidebarLayout.addSpacing(20)
+        sidebarLayout.addWidget(self._divider())
+        sidebarLayout.addSpacing(10)
 
-        # Sidebar buttons (icon, label)
+        # Sidebar buttons (icon, label) - Store window classes instead of instances
         self.buttons = []
-        sidebar_items = [
-            ("Dashboard", "dash.png", DashboardWindow(self.config, self.connString, self.userData)),
-            ("Dispense", "dispense.png",DispenseWindow(self.config, self.connString, self.userData)),
-            ("Instant Dose", "dispense.png", InstantDoseWindow(self.config, self.connString, self.userData)),
-            ("Prime Pump", "dispense.png", PrimeWindow(self.config, self.connString, self.userData)),
-            ("Calibrate Pump", "dispense.png", CalibrationWindow(self.config, self.connString, self.userData)),
-            ("Patients", "patient_icon.png", PatientsWindow(self.config, self.connString, self.userData)),
-            ("DIN Management", "list.svg", DinWindow(self.config, self.connString, self.userData)),
-            ("Pharmacy Users", "users.svg", PharmacyUsersWindow(self.config, self.connString, self.userData)),
-            ("Stock Management", "list.svg", PrimeWindow(self.config, self.connString, self.userData)),
-            ("Reports", "list.svg", PrimeWindow(self.config, self.connString, self.userData)),
-            ("Settings", "setting.svg", SettingsWindow(self.config, self.connString, self.userData)),
-            ("Logout", "logout.svg", PrimeWindow(self.config, self.connString, self.userData)),
+        self.sidebarItems = [
+            ("Dashboard", "dash.png", DashboardWindow),
+            ("Dispense", "dispense.png", DispenseWindow),
+            ("Instant Dose", "dispense.png", InstantDoseWindow),
+            ("Prime Pump", "dispense.png", PrimeWindow),
+            ("Calibrate Pump", "dispense.png", CalibrationWindow),
+            ("Patients", "patient_icon.png", PatientsWindow),
+            ("DIN Management", "list.svg", DinWindow),
+            ("Pharmacy Users", "users.svg", PharmacyUsersWindow),
+            ("Stock Management", "list.svg", PrimeWindow),
+            ("Reports", "list.svg", PrimeWindow),
+            ("Settings", "setting.svg", SettingsWindow),
+            ("Logout", "logout.svg", PrimeWindow),
         ]
 
         self.stack = QStackedLayout()
-        for idx, (label, icon_file, page_widget) in enumerate(sidebar_items):
+        
+        for idx, (label, iconFile, windowClass) in enumerate(self.sidebarItems):
             btn = QPushButton(f"  {label}")
-            btn.setIcon(QIcon(os.path.join(module_dir, "images", icon_file)))
+            btn.setIcon(QIcon(os.path.join(moduleDir, "images", iconFile)))
             btn.setIconSize(QSize(20, 20))
             btn.setCheckable(True)
             btn.setProperty("sidebarButton", True)  # For QSS
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.clicked.connect(lambda checked, i=idx: self.switch_page(i))
-            sidebar_layout.addWidget(btn)
+            btn.clicked.connect(lambda checked, i=idx: self.switchPage(i))
+            sidebarLayout.addWidget(btn)
             self.buttons.append(btn)
-            self.stack.addWidget(PageContainer(label, page_widget))
-        self.switch_page(0)
+            
+        self.switchPage(0)
 
-        sidebar_layout.addStretch()
+        sidebarLayout.addStretch()
 
         # Add sidebar and stack to main layout
-        main_layout.addWidget(sidebar_widget)
+        mainLayout.addWidget(sidebarWidget)
 
-        content_widget = QWidget()
-        content_widget.setContentsMargins(0, 0, 0, 0)
-        content_widget.setLayout(self.stack)
-        content_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        main_layout.addWidget(content_widget, stretch=1)
-        self.setLayout(main_layout)
+        contentWidget = QWidget()
+        contentWidget.setContentsMargins(0, 0, 0, 0)
+        contentWidget.setLayout(self.stack)
+        contentWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        mainLayout.addWidget(contentWidget, stretch=1)
+        self.setLayout(mainLayout)
 
     def _divider(self):
         line = QLabel()
@@ -100,7 +101,20 @@ class MainAppWindow(QWidget):
         line.setStyleSheet("background: #2b5e9e; margin: 8px 0;")
         return line
 
-    def switch_page(self, index):
+    def switchPage(self, index):
         for i, btn in enumerate(self.buttons):
             btn.setChecked(i == index)
-        self.stack.setCurrentIndex(index)
+        
+        # Create a fresh instance every time the button is clicked
+        label, iconFile, windowClass = self.sidebarItems[index]
+        pageWidget = windowClass(self.config, self.connString, self.userData)
+        pageContainer = PageContainer(label, pageWidget)
+        
+        # Clear the stack and add the new page
+        while self.stack.count() > 0:
+            widget = self.stack.widget(0)
+            self.stack.removeWidget(widget)
+            widget.deleteLater()
+        
+        self.stack.addWidget(pageContainer)
+        self.stack.setCurrentWidget(pageContainer)
