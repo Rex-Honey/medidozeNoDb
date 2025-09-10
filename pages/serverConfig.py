@@ -44,6 +44,7 @@ class ServerConfigWindow(QWidget):
             serverName=self.txtServerName.text()
             username=self.txtUsername.text()
             password=self.txtPassword.text()
+            localDatabase="medidozeSyncMed"
 
             # serverIP="192.168.29.151"
             # serverPort="1433"
@@ -53,10 +54,9 @@ class ServerConfigWindow(QWidget):
 
             config={
                     "server":f"{serverIP},{serverPort}\\{serverName}",
-                    "local_database":"medidoze",
+                    "local_database":localDatabase,
                     "username":f"{username}",
                     "password":f"{password}",
-                    "local_database":"medidoze",
                     "calibrationDateLeft":"",
                     "calibrationDateRight":"",
                     "oatRxPharmacyId":"",
@@ -68,7 +68,7 @@ class ServerConfigWindow(QWidget):
             connectionString = (
                 "DRIVER={SQL Server};"
                 'SERVER='f"{serverIP},{serverPort}\\{serverName};"
-                "DATABASE=medidoze;"
+                "DATABASE="f"{localDatabase};"
                 'UID='f"{username};"
                 'PWD='f'{password};'
             )
@@ -90,7 +90,7 @@ class ServerConfigWindow(QWidget):
             conn_thread.start()
             
             # Wait for 2 seconds maximum
-            conn_thread.join(timeout=2)
+            conn_thread.join(timeout=1)
             
             if connection_result['success']:
                 self.local_conn = connection_result['connection']
@@ -142,26 +142,6 @@ class ServerConfigWindow(QWidget):
             local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users') CREATE TABLE users ({', '.join(columns)})")
 
             columns = [
-                    'id INT PRIMARY KEY IDENTITY',
-                    'date_of_dispense VARCHAR(50) NOT NULL',
-                    'patient_first_name VARCHAR(30) NOT NULL',
-                    'patient_last_name VARCHAR(20) NOT NULL',
-                    'rx_number VARCHAR(20) NOT NULL',
-                    'route VARCHAR(20) NOT NULL',
-                    'drug VARCHAR(20) NOT NULL',
-                    'pharmacist_full_name VARCHAR(20) NOT NULL',
-                    'pharmacist_short_name VARCHAR(20) NOT NULL',
-                    'stop_date VARCHAR(20) NOT NULL',
-                    'supply_type VARCHAR(20) NOT NULL',
-                    'filling_status BIT NOT NULL DEFAULT 1',
-                    'createdBy VARCHAR(50) NOT NULL',
-                    'updatedBy VARCHAR(50) NOT NULL',
-                    'createdDate DATETIME NOT NULL',
-                    'updatedDate DATETIME NOT NULL'
-                ]
-            local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'logs') CREATE TABLE logs ({', '.join(columns)})")
-
-            columns = [
                 'id BIGINT PRIMARY KEY',
                 'route VARCHAR(20)',
                 'firstName VARCHAR(30)',
@@ -206,7 +186,6 @@ class ServerConfigWindow(QWidget):
             local_cursor.execute(f"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instantDoseLogs') CREATE TABLE instantDoseLogs ({', '.join(columns)})")
 
             print("================ Tables Created ================")
-
             current_datetime=datetime.now()
             createdDate = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
             admin_password = sha256("admin".encode()).hexdigest()

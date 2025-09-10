@@ -25,7 +25,6 @@ class AddUserWindow(QWidget):
         self.changeIsAdmin()
         setState(self.txtOatrxId, "ok")
 
-
         self.fields = [
         (self.txt_username, self.err_username, "Username can't be blank"),
         (self.txt_password, self.err_password, "Password can't be blank"),
@@ -107,8 +106,8 @@ class AddUserWindow(QWidget):
             format_created_date = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
             try:
                 local_cursor = self.local_conn.cursor()
-                query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdByMedidoze, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """ 
-                params = ( username, oatrxId, hashed_password, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N','Y', self.userData['uid'], self.userData['uid'], format_created_date, format_created_date )
+                query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """ 
+                params = ( username, oatrxId, hashed_password, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], format_created_date, format_created_date )
                 local_cursor.execute(query,params)
                 self.local_conn.commit()
                 # self.local_conn.close()
