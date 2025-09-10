@@ -158,7 +158,7 @@ class PharmacyUsersWindow(QWidget):
                     self.table_view_user.setCellWidget(row, col, widget)
 
                     # btnEdit.clicked.connect(partial(self.switchEditWinrxUser, rowData['uid']))
-                    # btnDlt.clicked.connect(partial(self.deleteUser, rowData['uid']))
+                    btnDlt.clicked.connect(partial(self.deleteUser, rowData['uid']))
         except Exception as e:
             print(e)
 
