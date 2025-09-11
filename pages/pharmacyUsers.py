@@ -32,7 +32,7 @@ class PharmacyUsersWindow(QWidget):
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
         uic.loadUi(uiPath, self)
         self.fetchAllUsers()
-        self.btnAddUser.clicked.connect(self.openAddEditUserPage)
+        self.btnAddUser.clicked.connect(lambda: self.openAddEditUserPage())
 
     def openAddEditUserPage(self, userToEdit=None):
         try:
