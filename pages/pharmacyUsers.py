@@ -32,16 +32,27 @@ class PharmacyUsersWindow(QWidget):
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
         uic.loadUi(uiPath, self)
         self.fetchAllUsers()
-        self.btnAddUser.clicked.connect(self.openAddUserPage)
+        self.btnAddUser.clicked.connect(self.openAddEditUserPage)
 
-    def openAddUserPage(self):
+    def openAddEditUserPage(self, userToEdit=None):
         try:
-            from pages.addUser import AddUserWindow
+            from pages.addUpdateUser import AddUpdateUserWindow
             from pages.pageContainer import PageContainer
 
-            # Create the add user page
-            addUserWidget = AddUserWindow(self.config, self.connString,self.userData)
-            addUserPage = PageContainer("Add User", addUserWidget)
+            # Create the add/edit user page
+            addEditUserWidget = AddUpdateUserWindow(self.config, self.connString, self.userData, userToEdit=userToEdit)
+            
+            # Check if there was an error during field population (for edit mode)
+            if userToEdit and hasattr(addEditUserWidget, 'populationError') and addEditUserWidget.populationError:
+                # Show error message and don't navigate
+                self.infoViewUsers.setText("Error loading user data. Please try again.")
+                self.infoViewUsers.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
+                QTimer.singleShot(4000, self.clearInfoMessages)
+                return
+            
+            # Set page title based on mode
+            pageTitle = "Edit User" if userToEdit else "Add User"
+            addEditUserPage = PageContainer(pageTitle, addEditUserWidget)
 
             # Find the main app's stack (walk up the parent chain)
             parent = self.parentWidget()
@@ -50,12 +61,16 @@ class PharmacyUsersWindow(QWidget):
                     break
                 parent = parent.parentWidget()
             if parent is not None:
-                parent.stack.addWidget(addUserPage)
-                parent.stack.setCurrentWidget(addUserPage)
+                parent.stack.addWidget(addEditUserPage)
+                parent.stack.setCurrentWidget(addEditUserPage)
             else:
                 print("Main stack not found!")
         except Exception as e:
-            print(e)
+            print(f"Error opening add/edit user page: {e}")
+            # Show error message to user
+            self.infoViewUsers.setText("Error opening user form. Please try again.")
+            self.infoViewUsers.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
+            QTimer.singleShot(4000, self.clearInfoMessages)
 
     def deleteUser(self,username):
         try:
@@ -157,7 +172,8 @@ class PharmacyUsersWindow(QWidget):
                     widget.setStyleSheet("border-radius:0px;background-color:transparent")
                     self.table_view_user.setCellWidget(row, col, widget)
 
-                    # btnEdit.clicked.connect(partial(self.switchEditWinrxUser, rowData['uid']))
+                    # Connect edit button to open edit page with user data
+                    btnEdit.clicked.connect(partial(self.openAddEditUserPage, rowData))
                     btnDlt.clicked.connect(partial(self.deleteUser, rowData['uid']))
         except Exception as e:
             print(e)

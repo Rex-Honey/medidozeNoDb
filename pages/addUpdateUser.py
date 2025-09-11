@@ -7,21 +7,23 @@ from pages.pharmacyUsers import PharmacyUsersWindow
 from datetime import datetime
 from hashlib import sha256
 
-class AddUserWindow(QWidget):
-    def __init__(self, config, connString, userData):
+class AddUpdateUserWindow(QWidget):
+    def __init__(self, config, connString, userData, userToEdit=None):
         super().__init__()
         self.config = config
         self.connString = connString
         self.userData = userData
-        self.local_conn = pyodbc.connect(connString)
-        ui_path = os.path.join(rootDir, "uiFiles", "addUser.ui")
-        uic.loadUi(ui_path, self)
-        self.remove_image()
-        self.btnCancel.clicked.connect(lambda: switchToPage(self, PharmacyUsersWindow))
-        self.btnLoadImage.clicked.connect(self.load_image)
+        self.userToEdit = userToEdit
+        self.localConn = pyodbc.connect(connString)
+        self.populationError = False  # Initialize error flag
+        uiPath = os.path.join(rootDir, "uiFiles", "addUpdateUser.ui")
+        uic.loadUi(uiPath, self)
+        self.removeImage()
+        self.btnCancel.clicked.connect(self.cancelAndSwitch)
+        self.btnLoadImage.clicked.connect(self.loadImage)
         self.statusIsAdmin.currentTextChanged.connect(self.changeIsAdmin)
-        self.btnRemoveImg.clicked.connect(self.remove_image)
-        self.btnAdduser.clicked.connect(self.registerUser)
+        self.btnRemoveImg.clicked.connect(self.removeImage)
+        self.btnAdduser.clicked.connect(self.addUpdateUser)
         self.changeIsAdmin()
         setState(self.txtOatrxId, "ok")
 
@@ -32,27 +34,83 @@ class AddUserWindow(QWidget):
         (self.txt_lname, self.err_lname, "Last Name can't be blank"),
         (self.txt_fname, self.err_fname, "First Name can't be blank"),
         ]
-        for txtWid,errWid,errMsg in self.fields:
-            setState(txtWid, "ok")
-            errWid.setText("")
+        
+        # If in edit mode, populate fields with existing data
+        if self.userToEdit is not None:
+            self.populateFieldsForEdit()
+            self.btnAdduser.setText("Update User")
+        else:
+            for txtWid,errWid,errMsg in self.fields:
+                setState(txtWid, "ok")
+                errWid.setText("")
 
-    def load_image(self):
+    def populateFieldsForEdit(self):
+        """Populate form fields with existing user data for editing"""
+        try:
+            self.populationError = False  # Initialize error flag
+            
+            # Convert all values to strings to avoid type errors
+            self.txt_username.setText(str(self.userToEdit.get('uid', '')))
+            self.txt_username.setEnabled(False)  # Username cannot be changed
+            self.txt_fname.setText(str(self.userToEdit.get('firstName', '')))
+            self.txt_lname.setText(str(self.userToEdit.get('lastName', '')))
+            
+            # Handle oatRxId which might be None or integer
+            oatRxId = self.userToEdit.get('oatRxId')
+            if oatRxId is not None:
+                self.txtOatrxId.setText(str(oatRxId))
+            else:
+                self.txtOatrxId.setText("")
+            
+            # Set admin status
+            isAdmin = self.userToEdit.get('isAdmin', 'N')
+            if isAdmin == 'Y':
+                self.statusIsAdmin.setCurrentText("Yes")
+            else:
+                self.statusIsAdmin.setCurrentText("No")
+            
+            # Set existing image if available
+            image = self.userToEdit.get('image')
+            if image:
+                self.imageStr = image
+                binaryData = base64.b64decode(image)
+                pixmap = roundImage(binaryData)
+                self.lblImg.setPixmap(pixmap)
+            else:
+                self.removeImage()
+            
+            # Clear password fields for edit mode
+            self.txt_password.setText("")
+            self.txt_confirm_password.setText("")
+            self.txt_password.setPlaceholderText("Leave blank to keep current password")
+            self.txt_confirm_password.setPlaceholderText("Leave blank to keep current password")
+            
+            # Set all fields to ok state
+            for txtWid,errWid,errMsg in self.fields:
+                setState(txtWid, "ok")
+                errWid.setText("")
+                
+        except Exception as e:
+            print(f"Error populating fields for edit: {e}")
+            self.populationError = True  # Set error flag
+
+    def loadImage(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Image Files (*.png *.jpg *.bmp)")
         if filename:
             with open(filename, 'rb') as f:
-                image_data = f.read()
-                self.imageStr = base64.b64encode(image_data).decode('utf-8')
-            pixmap=roundImage(image_data)
+                imageData = f.read()
+                self.imageStr = base64.b64encode(imageData).decode('utf-8')
+            pixmap=roundImage(imageData)
             self.lblImg.setPixmap(pixmap)
 
-    def remove_image(self):
+    def removeImage(self):
         with open(defaultUserImage, 'rb') as f:
             imageData = f.read()
         pixmap=roundImage(imageData)
         
         self.imageStr = ""
         self.lblImg.setPixmap(pixmap)
-        self.chk_remove_image=True
+        self.chkRemoveImage=True
 
     def changeIsAdmin(self):
         try:
@@ -68,11 +126,19 @@ class AddUserWindow(QWidget):
         except Exception as e:
             print(e)
 
-    def registerUser(self):
+    def addUpdateUser(self):
         try:
+            # Validate required fields
             for txtWid,errWid,errMsg in self.fields:
                 setState(txtWid, "ok")
                 errWid.setText("")
+                
+                # Skip password validation in edit mode if passwords are empty
+                if (self.userToEdit is not None and 
+                    txtWid in [self.txt_password, self.txt_confirm_password] and 
+                    txtWid.text().strip() == ""):
+                    continue
+                    
                 if txtWid.text().strip() == "":
                     setState(txtWid, "err")
                     errWid.setText(errMsg)
@@ -80,16 +146,18 @@ class AddUserWindow(QWidget):
 
             username=self.txt_username.text()
             password=self.txt_password.text()
-            confirm_password=self.txt_confirm_password.text()
+            confirmPassword=self.txt_confirm_password.text()
             fname=self.txt_fname.text()
             lname=self.txt_lname.text()
             oatrxId=self.txtOatrxId.text()
             otp=self.txtOtp.text()
 
-            if password!=confirm_password:
-                setState(self.txt_confirm_password, "err")
-                self.err_confirm_password.setText("Password and Confirm Password do not match")
-                return
+            # Password validation - check if passwords match when password is provided
+            if password:  # If password is provided (in both add and update modes)
+                if password != confirmPassword:
+                    setState(self.txt_confirm_password, "err")
+                    self.err_confirm_password.setText("Password and Confirm Password do not match")
+                    return
 
             adminStatus=self.statusIsAdmin.currentText()
             if adminStatus=="Yes":
@@ -101,25 +169,47 @@ class AddUserWindow(QWidget):
             else:
                 hashOtp=None
             
-            hashed_password = sha256(password.encode()).hexdigest()
-            current_datetime=datetime.now()
-            format_created_date = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
+            
             try:
-                local_cursor = self.local_conn.cursor()
-                query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """ 
-                params = ( username, oatrxId, hashed_password, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], format_created_date, format_created_date )
-                local_cursor.execute(query,params)
-                self.local_conn.commit()
-                # self.local_conn.close()
-                self.infoAddUser.setText("New User Registered Successfully !!")
+                localCursor = self.localConn.cursor()
+                
+                if self.userToEdit is not None:
+                    # Update existing user
+                    if password:  # Only update password if provided
+                        hashedPassword = sha256(password.encode()).hexdigest()
+                        query = """ UPDATE users SET oatRxId=?, password=?, otp=?, firstName=?, lastName=?, image=?, isAdmin=?, updatedBy=?, updatedDate=? WHERE uid=? """
+                        params = (oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, self.userData['uid'], datetime.now(), username)
+                    else:
+                        # Keep existing password
+                        query = """ UPDATE users SET oatRxId=?, otp=?, firstName=?, lastName=?, image=?, isAdmin=?, updatedBy=?, updatedDate=? WHERE uid=? """
+                        params = (oatrxId, hashOtp, fname, lname, self.imageStr, isAdmin, self.userData['uid'], datetime.now(), username)
+                    
+                    localCursor.execute(query, params)
+                    self.localConn.commit()
+                    self.infoAddUser.setText("User Updated Successfully !!")
+                else:
+                    # Insert new user
+                    hashedPassword = sha256(password.encode()).hexdigest()
+                    formatCreatedDate = currentDatetime.strftime('%Y-%m-%d %H:%M:%S')
+                    query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+                    params = (username, oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], formatCreatedDate, formatCreatedDate)
+                    localCursor.execute(query,params)
+                    self.localConn.commit()
+                    self.infoAddUser.setText("New User Registered Successfully !!")
+                
                 self.infoAddUser.setStyleSheet("background:lightgreen;color:green;padding:8px;border-radius:none")
                 QTimer.singleShot(4000, self.clearInfo)
-                self.statusIsAdmin.setCurrentText("No")
-                for txtb in (self.txt_username,self.txtOatrxId,self.txt_fname,self.txt_lname,self.txt_password,self.txt_confirm_password):
-                    txtb.setText("")
-                self.statusIsAdmin.setCurrentText("No")
-                self.remove_image()
-                self.txt_username.setFocus()
+                
+                if self.userToEdit is None:
+                    # Clear form only for new user registration
+                    self.statusIsAdmin.setCurrentText("No")
+                    for txtb in (self.txt_username,self.txtOatrxId,self.txt_fname,self.txt_lname,self.txt_password,self.txt_confirm_password):
+                        txtb.setText("")
+                    self.statusIsAdmin.setCurrentText("No")
+                    self.removeImage()
+                    self.txt_username.setFocus()
+                    # For edit mode, stay on the current page after successful update
+                    
             except pyodbc.IntegrityError as e:
                 if 'duplicate key' in str(e).lower():
                     self.err_username.setText("Username already exists")
@@ -127,6 +217,32 @@ class AddUserWindow(QWidget):
                     print(e)
         except Exception as e:
             print(e)
+
+    def cancelAndSwitch(self):
+        """Create a fresh instance of PharmacyUsersWindow and switch to it"""
+        try:
+            # Create a new instance of PharmacyUsersWindow
+            freshPharmacyUsers = PharmacyUsersWindow(self.config, self.connString, self.userData)
+            
+            # Find the parent stack widget
+            from pages.pageContainer import PageContainer
+            parent = self.parentWidget()
+            while parent is not None:
+                if hasattr(parent, "stack"):
+                    break
+                parent = parent.parentWidget()
+            
+            if parent is not None:
+                # Create a new PageContainer with the fresh PharmacyUsersWindow
+                pageContainer = PageContainer("Pharmacy Users", freshPharmacyUsers)
+                
+                # Add the new PageContainer to the stack and switch to it
+                parent.stack.addWidget(pageContainer)
+                parent.stack.setCurrentWidget(pageContainer)
+            else:
+                print("Main stack not found!")
+        except Exception as e:
+            print(f"Error creating fresh PharmacyUsersWindow: {e}")
 
     def clearInfo(self):
         try:
