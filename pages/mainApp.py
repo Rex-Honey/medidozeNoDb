@@ -80,8 +80,6 @@ class MainAppWindow(QWidget):
             btn.clicked.connect(lambda checked, i=idx: self.switchPage(i))
             sidebarLayout.addWidget(btn)
             self.buttons.append(btn)
-            
-        self.switchPage(0)
 
         sidebarLayout.addStretch()
 
@@ -94,6 +92,9 @@ class MainAppWindow(QWidget):
         contentWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         mainLayout.addWidget(contentWidget, stretch=1)
         self.setLayout(mainLayout)
+        
+        # Initialize the first page after UI is fully set up
+        self.switchPage(0)
 
     def _divider(self):
         line = QLabel()
