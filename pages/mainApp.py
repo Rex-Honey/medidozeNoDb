@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSta
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 import pyodbc,os
+from pages.settingsAuth import SettingsAuthWindow
 from pages.settings import SettingsWindow
 from pages.primePump import PrimeWindow
 from pages.calibration import CalibrationWindow
@@ -12,6 +13,7 @@ from pages.patients import PatientsWindow
 from pages.pharmacyUsers import PharmacyUsersWindow
 from pages.instantDose import InstantDoseWindow
 from pages.dispense import DispenseWindow
+from otherFiles.common import dictfetchall
 
 class MainAppWindow(QWidget):
     def __init__(self, config, connString, userData):
@@ -63,7 +65,7 @@ class MainAppWindow(QWidget):
             ("Pharmacy Users", "users.svg", PharmacyUsersWindow),
             ("Stock Management", "list.svg", PrimeWindow),
             ("Reports", "list.svg", PrimeWindow),
-            ("Settings", "setting.svg", SettingsWindow),
+            ("Settings", "setting.svg", "settings"),  # Special case for settings
             ("Logout", "logout.svg", PrimeWindow),
         ]
 
@@ -106,6 +108,11 @@ class MainAppWindow(QWidget):
         for i, btn in enumerate(self.buttons):
             btn.setChecked(i == index)
         
+        # Handle settings page specially
+        if index == 10:  # Settings page
+            self._handleSettingsPage()
+            return
+        
         # Create a fresh instance every time the button is clicked
         label, iconFile, windowClass = self.sidebarItems[index]
         pageWidget = windowClass(self.config, self.connString, self.userData)
@@ -119,3 +126,58 @@ class MainAppWindow(QWidget):
         
         self.stack.addWidget(pageContainer)
         self.stack.setCurrentWidget(pageContainer)
+
+    def _handleSettingsPage(self):
+        """Handle the settings page with authentication check"""
+        try:
+            # Check if user has OTP set
+            local_cursor = self.localConn.cursor()
+            query = "SELECT * FROM users WHERE uid = ?"
+            local_cursor.execute(query, self.userData['uid'])
+            userData = dictfetchall(local_cursor)
+            
+            if userData and userData[0]['otp']:
+                # User has OTP, show authentication page
+                pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData)
+                # Connect the authentication success signal
+                pageWidget.authenticated.connect(self._switchToSettings)
+            else:
+                # No OTP, go directly to settings
+                self._switchToSettings()
+                return  # Exit early since we're switching to settings directly
+                
+        except Exception as e:
+            print(f"Error handling settings page: {e}")
+            # Fallback to settings auth page
+            pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData)
+            pageWidget.authenticated.connect(self._switchToSettings)
+        
+        # Create page container and add to stack (only if we have a pageWidget)
+        pageContainer = PageContainer("Settings", pageWidget)
+        
+        # Clear the stack and add the new page
+        while self.stack.count() > 0:
+            widget = self.stack.widget(0)
+            self.stack.removeWidget(widget)
+            widget.deleteLater()
+        
+        self.stack.addWidget(pageContainer)
+        self.stack.setCurrentWidget(pageContainer)
+
+    def _switchToSettings(self):
+        """Switch to the actual settings page after authentication"""
+        try:
+            pageWidget = SettingsWindow(self.config, self.connString, self.userData)
+            pageContainer = PageContainer("Settings", pageWidget)
+            
+            # Clear the stack and add the new page
+            while self.stack.count() > 0:
+                widget = self.stack.widget(0)
+                self.stack.removeWidget(widget)
+                widget.deleteLater()
+            
+            self.stack.addWidget(pageContainer)
+            self.stack.setCurrentWidget(pageContainer)
+            
+        except Exception as e:
+            print(f"Error switching to settings: {e}")
