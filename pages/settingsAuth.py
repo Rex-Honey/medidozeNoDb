@@ -10,11 +10,12 @@ class SettingsAuthWindow(QWidget):
     # Signal emitted when authentication is successful
     authenticated = pyqtSignal()
     
-    def __init__(self, config, connString, userData):
+    def __init__(self, config, connString, userData,medidozeDir):
         super().__init__()
         self.config = config
         self.connString = connString
         self.userData = userData
+        self.medidozeDir = medidozeDir
         self.local_conn = pyodbc.connect(connString)
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "settingsAuth.ui")
@@ -42,7 +43,6 @@ class SettingsAuthWindow(QWidget):
         try:
             otp=self.txtAuthOtp.text()
             if sha256(otp.encode()).hexdigest()==self.userOtp:
-                # Authentication successful, emit signal
                 self.authenticated.emit()
             else:
                 self.errAuth.setText("Invalid Otp")

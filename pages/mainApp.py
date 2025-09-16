@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QStackedLayout, QLabel, QSizePolicy
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QStandardPaths
 import pyodbc,os
 from pages.settingsAuth import SettingsAuthWindow
 from pages.settings import SettingsWindow
@@ -15,6 +15,7 @@ from pages.instantDose import InstantDoseWindow
 from pages.dispense import DispenseWindow
 from otherFiles.common import dictfetchall
 
+
 class MainAppWindow(QWidget):
     def __init__(self, config, connString, userData):
         super().__init__()
@@ -26,6 +27,7 @@ class MainAppWindow(QWidget):
 
     def initUI(self):
         moduleDir = os.path.dirname(os.path.dirname(__file__))
+        self.medidozeDir = os.path.join(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation), 'medidoze')
 
         # Main layout: sidebar + main content
         mainLayout = QHBoxLayout(self)
@@ -115,7 +117,7 @@ class MainAppWindow(QWidget):
         
         # Create a fresh instance every time the button is clicked
         label, iconFile, windowClass = self.sidebarItems[index]
-        pageWidget = windowClass(self.config, self.connString, self.userData)
+        pageWidget = windowClass(self.config, self.connString, self.userData,self.medidozeDir)
         pageContainer = PageContainer(label, pageWidget)
         
         # Clear the stack and add the new page
@@ -138,7 +140,7 @@ class MainAppWindow(QWidget):
             
             if userData and userData[0]['otp']:
                 # User has OTP, show authentication page
-                pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData)
+                pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData,self.medidozeDir)
                 # Connect the authentication success signal
                 pageWidget.authenticated.connect(self._switchToSettings)
             else:
@@ -149,7 +151,7 @@ class MainAppWindow(QWidget):
         except Exception as e:
             print(f"Error handling settings page: {e}")
             # Fallback to settings auth page
-            pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData)
+            pageWidget = SettingsAuthWindow(self.config, self.connString, self.userData,self.medidozeDir)
             pageWidget.authenticated.connect(self._switchToSettings)
         
         # Create page container and add to stack (only if we have a pageWidget)
@@ -167,7 +169,7 @@ class MainAppWindow(QWidget):
     def _switchToSettings(self):
         """Switch to the actual settings page after authentication"""
         try:
-            pageWidget = SettingsWindow(self.config, self.connString, self.userData)
+            pageWidget = SettingsWindow(self.config, self.connString, self.userData,self.medidozeDir)
             pageContainer = PageContainer("Settings", pageWidget)
             
             # Clear the stack and add the new page

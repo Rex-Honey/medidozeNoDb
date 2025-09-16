@@ -22,11 +22,12 @@ def getRoundedPixmap(pixmap, size):
     return rounded
 
 class PharmacyUsersWindow(QWidget):
-    def __init__(self, config, connString, userData):
+    def __init__(self, config, connString, userData,medidozeDir):
         super().__init__()
         self.config = config
         self.connString = connString
         self.userData = userData
+        self.medidozeDir = medidozeDir
         self.localConn = pyodbc.connect(connString)
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
