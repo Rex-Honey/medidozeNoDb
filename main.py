@@ -30,12 +30,13 @@ class MainWindow(QMainWindow):
         self.signInWindow.loginSuccess.connect(self.loginSuccess)
         self.stackLayout.addWidget(self.signInWindow)
 
+        self.documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+
         self.checkConfig()
 
     def checkConfig(self):
         try:
-            documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
-            with open(os.path.join(documentsDir, 'medidoze', 'configN.json'), 'r', encoding='utf-8') as f:
+            with open(os.path.join(self.documentsDir, 'medidoze', 'configN.json'), 'r', encoding='utf-8') as f:
                 config = json.load(f)
             connString = (
                 f"DRIVER={{SQL Server}};"
@@ -48,12 +49,6 @@ class MainWindow(QMainWindow):
             print("Connection successful!")
             conn.close()
             
-            # Initialize global config when configN.json is loaded
-            medidozeDir = os.path.join(documentsDir, 'medidoze')
-            localConn = pyodbc.connect(connString)
-            initializeConfig(config, connString, None, medidozeDir, localConn)
-            print("Global config initialized successfully!")
-            
             self.updateServerConfig(config, connString)
         except FileNotFoundError:
             print("No JSON config file found.")
@@ -65,10 +60,15 @@ class MainWindow(QMainWindow):
             print(f"Error in checkConfig: {e}")
             self.serverConfigWindow = ServerConfigWindow()
             self.stackLayout.addWidget(self.serverConfigWindow)
-            self.serverConfigWindow.serverSetUpDone.connect(self.serverSetUpDone)
+            self.serverConfigWindow.serverSetUpDone.connect(self.updateServerConfig)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
     def updateServerConfig(self, config, connString):
+        medidozeDir = os.path.join(self.documentsDir, 'medidoze')
+        localConn = pyodbc.connect(connString)
+        initializeConfig(config, connString, None, medidozeDir, localConn)
+        print("Global config initialized successfully!")
+
         self.config = config
         self.connString = connString
         self.stackLayout.setCurrentWidget(self.signInWindow)

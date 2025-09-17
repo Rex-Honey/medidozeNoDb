@@ -73,7 +73,7 @@ class ServerConfigWindow(QWidget):
                 'PWD='f'{password};'
             )
 
-                # Connection result storage
+            # Connection result storage
             connection_result = {'success': False, 'connection': None, 'error': None}
             
             def attempt_connection():
@@ -96,13 +96,18 @@ class ServerConfigWindow(QWidget):
                 self.local_conn = connection_result['connection']
                 self.config=config
                 print("Connection successful!")
+                createTablesResult = self.createTables()
+                if createTablesResult['status'] == 'error':
+                    self.infoServerConfig.setText("Something went wrong")
+                    self.infoServerConfig.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
+                    QTimer.singleShot(4000, self.clear_info_messages)
+                    return
                 documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
                 medidozeDir = os.path.join(documentsDir, 'medidoze')
                 os.makedirs(medidozeDir, exist_ok=True)
                 with open(os.path.join(medidozeDir, 'configN.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
-                self.createTables()
             else:
                 if connection_result['error']:
                     print(connection_result['error'])
@@ -134,7 +139,7 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL,
                 updatedDate DATETIME NOT NULL
             )""")
-            print("pharmacyDetails table query executed")
+            print("-- PharmacyDetails table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users') CREATE TABLE users (
                 uid VARCHAR(50) PRIMARY KEY,
@@ -153,17 +158,17 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL,
                 updatedDate DATETIME NOT NULL
             )""")
-            print("users table query executed")
+            print("-- Users table query executed")
 
             super_admin_pass = sha256("a".encode()).hexdigest()
             query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'sys') INSERT INTO users (uid, password, firstName, lastName, phone, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES ('sys','{super_admin_pass}','Super','Admin', NULL, '', 'Y', 'Y', 'N', 'Super Admin', 'Super Admin', '{createdAt}', '{createdAt}')"
             local_cursor.execute(query)
-            print("sys user added query executed")
+            print("-- Sys user added query executed")
 
             admin_password = sha256("admin".encode()).hexdigest()
             query = f"IF NOT EXISTS (SELECT 1 FROM users WHERE uid = 'admin') INSERT INTO users (uid, password, firstName, lastName, phone, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate) VALUES ('admin','{admin_password}','Medidoze Technologies','', NULL, '', 'Y', 'Y', 'N','Super Admin', 'Super Admin', '{createdAt}', '{createdAt}')"
             local_cursor.execute(query)
-            print("admin user added query executed")
+            print("-- Admin user added query executed")
 
     # =============================================== din_groups ===============================================
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'din_groups') CREATE TABLE din_groups (
@@ -177,7 +182,7 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL,
                 updatedDate DATETIME NOT NULL
             )""")
-            print("din_groups table query executed")
+            print("-- Din_groups table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'din') CREATE TABLE din (
                 id INT PRIMARY KEY IDENTITY,
@@ -190,30 +195,30 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL,
                 updatedDate DATETIME NOT NULL
             )""")
-            print("din table query executed")
+            print("-- Din table query executed")
 
             query = f"IF NOT EXISTS (SELECT 1 FROM din_groups WHERE medication = ?) INSERT INTO din_groups (medication, pump_type, pump_position, status, createdBy, updatedBy, createdDate, updatedDate) OUTPUT INSERTED.id VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             local_cursor.execute(query, ('Metadol','Metadol', 'Double', 'Left', 1, 'Super Admin', 'Super Admin', createdAt, createdAt))
             lastRowId = local_cursor.fetchone()[0]
-            print("dinGourp1 query executed")
+            print("-- DinGourp1 query executed")
 
             # ['67000005','67000006','67000007','67000008','67000013','67000014','67000015','67000016','66999997','66999998','66999999','67000000','67000001','67000002','67000003','67000004','2394596']
             dinDetails = [(67000005,lastRowId,'10mg'),(67000006,lastRowId,'10mg'),(67000007,lastRowId,'10mg'),(67000008,lastRowId,'10mg'),(67000013,lastRowId,'10mg'),(67000014,lastRowId,'10mg'),(67000015,lastRowId,'10mg'),(67000016,lastRowId,'10mg')]
             for din, dinGroupId, strength in dinDetails:
                 query = f"IF NOT EXISTS (SELECT 1 FROM din WHERE din_number = ?) INSERT INTO din (din_number, strength, din_group_id, status, createdBy, updatedBy, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 local_cursor.execute(query, (din,din, strength, dinGroupId, 1, 'Super Admin', 'Super Admin', createdAt, createdAt))
-            print("dinGourp1 dins query executed")
+            print("-- DinGourp1 dins query executed")
 
             query = f"IF NOT EXISTS (SELECT 1 FROM din_groups WHERE medication = ?) INSERT INTO din_groups (medication, pump_type, pump_position, status, createdBy, updatedBy, createdDate, updatedDate) OUTPUT INSERTED.id VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             local_cursor.execute(query, ('Methadose', 'Methadose', 'Double', 'Right', 1, 'Super Admin', 'Super Admin', createdAt, createdAt))
             lastRowId = local_cursor.fetchone()[0]
-            print("dinGourp2 query executed")
+            print("-- DinGourp2 query executed")
 
             dinDetails = [(66999997,lastRowId,'10mg'),(66999998,lastRowId,'10mg'),(66999999,lastRowId,'10mg'),(67000000,lastRowId,'10mg'),(67000001,lastRowId,'10mg'),(67000002,lastRowId,'10mg'),(67000003,lastRowId,'10mg'),(67000004,lastRowId,'10mg'),(2394596,lastRowId,'10mg')]
             for din, dinGroupId, strength in dinDetails:
                 query = f"IF NOT EXISTS (SELECT 1 FROM din WHERE din_number = ?) INSERT INTO din (din_number, strength, din_group_id, status, createdBy, updatedBy, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 local_cursor.execute(query, (din,din, strength, dinGroupId, 1, 'Super Admin', 'Super Admin', createdAt, createdAt))
-            print("dinGourp2 dins query executed")
+            print("-- DinGourp2 dins query executed")
     # =============================================== din ======================================================
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'patient') CREATE TABLE patient (
                 id INT PRIMARY KEY IDENTITY,
@@ -228,7 +233,7 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL, 
                 updatedDate DATETIME NOT NULL
             )""")
-            print("patient table query executed")
+            print("-- Patient table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'refills') CREATE TABLE refills (
                 id INT PRIMARY KEY IDENTITY,
@@ -246,7 +251,7 @@ class ServerConfigWindow(QWidget):
                 createdAt DATETIME NOT NULL, 
                 updatedAt DATETIME NOT NULL
             )""")
-            print("refills table query executed")
+            print("-- Refills table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'dispenseLogs') CREATE TABLE dispenseLogs (
                 id INT PRIMARY KEY IDENTITY,
@@ -263,7 +268,7 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL, 
                 updatedDate DATETIME NOT NULL
             )""")
-            print("dispenseLogs table query executed")
+            print("-- DispenseLogs table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instantDoseLogs') CREATE TABLE instantDoseLogs (
                 id INT PRIMARY KEY IDENTITY,
@@ -274,7 +279,7 @@ class ServerConfigWindow(QWidget):
                 createdDate DATETIME NOT NULL, 
                 updatedDate DATETIME NOT NULL
             )""")
-            print("instantDoseLogs table query executed")
+            print("-- InstantDoseLogs table query executed")
 
             local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'qr') CREATE TABLE qr (
                 id INT PRIMARY KEY IDENTITY,
@@ -285,7 +290,7 @@ class ServerConfigWindow(QWidget):
                 createdAt DATETIME NOT NULL,
                 updatedAt DATETIME NOT NULL
             )""")
-            print("qr table query executed")
+            print("-- Qr table query executed")
 
 
             # columns = [
@@ -303,7 +308,7 @@ class ServerConfigWindow(QWidget):
 
             query = f"IF NOT EXISTS (SELECT 1 FROM pharmacyDetails) INSERT INTO pharmacyDetails (OatRxPharmacyId, createdBy, updatedBy, createdDate, updatedDate) VALUES ('', 'Super Admin', 'Super Admin', '{createdAt}', '{createdAt}')"
             local_cursor.execute(query)
-            print("pharmacyDetails table details query executed")
+            print("-- Super Admin added query executed")
             
             self.local_conn.commit()
             local_cursor.close()
