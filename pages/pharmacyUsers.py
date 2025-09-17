@@ -22,13 +22,23 @@ def getRoundedPixmap(pixmap, size):
     return rounded
 
 class PharmacyUsersWindow(QWidget):
-    def __init__(self, config, connString, userData,medidozeDir):
+    def __init__(self):
         super().__init__()
+        
+        # Import config inside __init__ to get the current values
+        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        
+        # Check if config is available, if not show error
+        if config is None or localConn is None:
+            QMessageBox.critical(self, "Configuration Error", 
+                               "Configuration not properly initialized. Please restart the application.")
+            return
+            
         self.config = config
         self.connString = connString
         self.userData = userData
         self.medidozeDir = medidozeDir
-        self.localConn = pyodbc.connect(connString)
+        self.local_conn = localConn
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
         uic.loadUi(uiPath, self)
@@ -41,7 +51,7 @@ class PharmacyUsersWindow(QWidget):
             from pages.pageContainer import PageContainer
 
             # Create the add/edit user page
-            addEditUserWidget = AddUpdateUserWindow(self.config, self.connString, self.userData, userToEdit=userToEdit)
+            addEditUserWidget = AddUpdateUserWindow(userToEdit=userToEdit)
             
             # Check if there was an error during field population (for edit mode)
             if userToEdit and hasattr(addEditUserWidget, 'populationError') and addEditUserWidget.populationError:
@@ -79,9 +89,9 @@ class PharmacyUsersWindow(QWidget):
             f"Do you want to delete user '{username}' ?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
             if reply == QMessageBox.StandardButton.Yes:
-                localCursor = self.localConn.cursor()
+                localCursor = self.local_conn.cursor()
                 localCursor.execute(f"UPDATE users SET isSoftDlt = 'Y' WHERE uid='{username}'")
-                self.localConn.commit()
+                self.local_conn.commit()
                 self.infoViewUsers.setText("User deleted successfully!!")
                 self.infoViewUsers.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
                 QTimer.singleShot(4000, self.clearInfoMessages)
@@ -182,7 +192,7 @@ class PharmacyUsersWindow(QWidget):
     def fetchAllUsers(self):
         try:
             print("--Fetching All Users..")
-            localCursor = self.localConn.cursor()
+            localCursor = self.local_conn.cursor()
             localCursor.execute("SELECT * FROM users where isSoftDlt='N' and uid != 'sys'")
             data=dictfetchall(localCursor)
             self.addDataToUserTable(data)

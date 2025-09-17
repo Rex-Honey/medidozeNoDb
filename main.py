@@ -5,6 +5,7 @@ import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 from pages.mainApp import MainAppWindow
+from otherFiles.config import initializeConfig
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -46,30 +47,43 @@ class MainWindow(QMainWindow):
             conn = pyodbc.connect(connString)
             print("Connection successful!")
             conn.close()
-            self.serverSetUpDone(config, connString)
+            
+            # Initialize global config when configN.json is loaded
+            medidozeDir = os.path.join(documentsDir, 'medidoze')
+            localConn = pyodbc.connect(connString)
+            initializeConfig(config, connString, None, medidozeDir, localConn)
+            print("Global config initialized successfully!")
+            
+            self.updateServerConfig(config, connString)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
             self.stackLayout.addWidget(self.serverConfigWindow)
-            self.serverConfigWindow.serverSetUpDone.connect(self.serverSetUpDone)
+            self.serverConfigWindow.serverSetUpDone.connect(self.updateServerConfig)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
         except Exception as e:
-            print(e)
+            print(f"Error in checkConfig: {e}")
             self.serverConfigWindow = ServerConfigWindow()
             self.stackLayout.addWidget(self.serverConfigWindow)
             self.serverConfigWindow.serverSetUpDone.connect(self.serverSetUpDone)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
-    def serverSetUpDone(self, config, connString):
+    def updateServerConfig(self, config, connString):
         self.config = config
         self.connString = connString
         self.stackLayout.setCurrentWidget(self.signInWindow)
         self.signInWindow.setConfig(connString)
 
     def loginSuccess(self, userData):
-        self.mainAppWindow = MainAppWindow(self.config, self.connString, userData)
+        # Update global config with user data
+        from otherFiles.config import updateUserData
+        updateUserData(userData)
+        print(f"User data updated: {userData}")
+        
+        # Create MainAppWindow without parameters
+        self.mainAppWindow = MainAppWindow()
         self.stackLayout.addWidget(self.mainAppWindow)
-        # print(f"Login successful: {userData}")
+        print("MainAppWindow created successfully!")
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
 
 if __name__ == "__main__":

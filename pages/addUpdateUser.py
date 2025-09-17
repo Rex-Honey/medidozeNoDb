@@ -8,13 +8,17 @@ from datetime import datetime
 from hashlib import sha256
 
 class AddUpdateUserWindow(QWidget):
-    def __init__(self, config, connString, userData, userToEdit=None):
+    def __init__(self, userToEdit=None):
         super().__init__()
+        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        if config is None or localConn is None:
+            print("Configuration not properly initialized. Please restart the application.")
+            return
         self.config = config
         self.connString = connString
         self.userData = userData
         self.userToEdit = userToEdit
-        self.localConn = pyodbc.connect(connString)
+        self.localConn = localConn
         self.populationError = False  # Initialize error flag
         uiPath = os.path.join(rootDir, "uiFiles", "addUpdateUser.ui")
         uic.loadUi(uiPath, self)
@@ -222,7 +226,7 @@ class AddUpdateUserWindow(QWidget):
         """Create a fresh instance of PharmacyUsersWindow and switch to it"""
         try:
             # Create a new instance of PharmacyUsersWindow
-            freshPharmacyUsers = PharmacyUsersWindow(self.config, self.connString, self.userData)
+            freshPharmacyUsers = PharmacyUsersWindow()
             
             # Find the parent stack widget
             from pages.pageContainer import PageContainer

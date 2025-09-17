@@ -3,18 +3,21 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QMovie
 from PyQt6.QtCore import QTimer
-
 import os, pyodbc,win32print,json
 from functools import partial
 
 class SettingsWindow(QWidget):
-    def __init__(self, config, connString, userData,medidozeDir):
+    def __init__(self):
         super().__init__()
+        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        if config is None or localConn is None:
+            print("Configuration not properly initialized. Please restart the application.")
+            return
         self.config = config
         self.connString = connString
         self.userData = userData
         self.medidozeDir = medidozeDir
-        self.local_conn = pyodbc.connect(connString)
+        self.local_conn = localConn
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "settings.ui")
         uic.loadUi(ui_path, self)
