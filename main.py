@@ -82,9 +82,33 @@ class MainWindow(QMainWindow):
         
         # Create MainAppWindow without parameters
         self.mainAppWindow = MainAppWindow()
+        # Connect logout signal
+        self.mainAppWindow.logoutRequested.connect(self.handleLogout)
         self.stackLayout.addWidget(self.mainAppWindow)
         print("MainAppWindow created successfully!")
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
+
+    def handleLogout(self):
+        """Handle logout request from MainAppWindow"""
+        try:
+            print("Logout requested")
+            
+            # Clear the main app window
+            if hasattr(self, 'mainAppWindow'):
+                self.stackLayout.removeWidget(self.mainAppWindow)
+                self.mainAppWindow.deleteLater()
+                delattr(self, 'mainAppWindow')
+            
+            # Reset sign-in window (clear any stored data)
+            if hasattr(self.signInWindow, 'clearFields'):
+                self.signInWindow.clearFields()
+            
+            # Switch to sign-in page
+            self.stackLayout.setCurrentWidget(self.signInWindow)
+            print("Logged out successfully")
+            
+        except Exception as e:
+            print(f"Error during logout: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QStackedLayout, QLabel, QSizePolicy
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QStackedLayout, QLabel, QSizePolicy, QMessageBox
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import Qt, QSize, QStandardPaths
+from PyQt6.QtCore import Qt, QSize, QStandardPaths, pyqtSignal
 from otherFiles.common import dictfetchall
 from pages.pageContainer import PageContainer
 from pages.dashboard import DashboardWindow
@@ -15,11 +15,12 @@ from pages.settingsAuth import SettingsAuthWindow
 from pages.settings import SettingsWindow
 import pyodbc, os
 
-
 class MainAppWindow(QWidget):
-    def __init__(self):
+    # Signal to notify main window about logout
+    logoutRequested = pyqtSignal()
+    
+    def __init__(self):  # No parameters needed
         super().__init__()
-        
         self.initUI()
 
     def initUI(self):
@@ -65,7 +66,7 @@ class MainAppWindow(QWidget):
             ("Stock Management", "list.svg", PrimeWindow),
             ("Reports", "list.svg", PrimeWindow),
             ("Settings", "setting.svg", "settings"),
-            ("Logout", "logout.svg", PrimeWindow),
+            ("Logout", "logout.svg", "logout"),  # Special case for logout
         ]
 
         self.stack = QStackedLayout()
@@ -112,6 +113,11 @@ class MainAppWindow(QWidget):
             self._handleSettingsPage()
             return
         
+        # Handle logout page specially
+        if index == 11:  # Logout page
+            self._handleLogout()
+            return
+        
         # Create a fresh instance every time the button is clicked
         label, iconFile, windowClass = self.sidebarItems[index]
         pageWidget = windowClass()  # No parameters needed
@@ -125,6 +131,38 @@ class MainAppWindow(QWidget):
         
         self.stack.addWidget(pageContainer)
         self.stack.setCurrentWidget(pageContainer)
+
+    def _handleLogout(self):
+        """Handle logout functionality"""
+        try:
+            # Show confirmation dialog
+            reply = QMessageBox.question(
+                self, 
+                'Logout Confirmation', 
+                'Are you sure you want to logout?',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                # Clear global config
+                from otherFiles.config import updateUserData
+                updateUserData(None)
+                
+                # Emit signal to main window to switch to sign-in page
+                self.logoutRequested.emit()
+                
+                # Reset button states
+                for btn in self.buttons:
+                    btn.setChecked(False)
+            else:
+                # User cancelled logout, uncheck the logout button
+                self.buttons[11].setChecked(False)
+                
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            # Reset button state on error
+            self.buttons[11].setChecked(False)
 
     def _handleSettingsPage(self):
         """Handle the settings page with authentication check"""
