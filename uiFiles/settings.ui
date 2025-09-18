@@ -882,7 +882,7 @@ font-family:Nirmala UI;</string>
                 <item>
                  <widget class="QLabel" name="animateLblSettings">
                   <property name="text">
-                   <string>a</string>
+                   <string>--</string>
                   </property>
                  </widget>
                 </item>
@@ -942,7 +942,7 @@ font-family:Nirmala UI;</string>
                    <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">padding:7px 20px;
+                   <string notr="true">padding:7px 25px;
 border:none;
 background:#48C9E3;
 color:white;
@@ -953,83 +953,6 @@ font-weight:700</string>
                   </property>
                   <property name="text">
                    <string>Save</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btn_edit_db">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Nirmala UI</family>
-                    <pointsize>10</pointsize>
-                    <weight>87</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::NoFocus</enum>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding:7px 20px;
-border:none;
-background:#48C9E3;
-color:white;
-border-radius:6%;
-font-family:Nirmala UI;
-font-size:10pt;
-font-weight:700</string>
-                  </property>
-                  <property name="text">
-                   <string>Edit</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btn_cancel_settings">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Nirmala UI</family>
-                    <pointsize>10</pointsize>
-                    <weight>87</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::NoFocus</enum>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding:7px 20px;
-border:none;
-background:#48C9E3;
-color:white;
-border-radius:6%;
-font-family:Nirmala UI;
-font-size:10pt;
-font-weight:700</string>
-                  </property>
-                  <property name="text">
-                   <string>Cancel</string>
                   </property>
                  </widget>
                 </item>

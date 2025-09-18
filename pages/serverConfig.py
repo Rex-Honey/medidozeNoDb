@@ -54,6 +54,7 @@ class ServerConfigWindow(QWidget):
 
             config={
                     "server":f"{serverIP},{serverPort}\\{serverName}",
+                    "winrxDbName":"",
                     "local_database":localDatabase,
                     "username":f"{username}",
                     "password":f"{password}",
