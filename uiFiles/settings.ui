@@ -17,7 +17,7 @@
    <item>
     <widget class="QFrame" name="settings">
      <property name="styleSheet">
-      <string notr="true">background:#FFFFFF;</string>
+      <string notr="true">background:#FFFFFF;border-radius:10%;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -230,11 +230,7 @@ background-color:rgb(218, 221, 222)
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-weight: 400;
-font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Left Margin</string>
@@ -279,10 +275,7 @@ font-size:12pt
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Top Margin</string>
@@ -324,10 +317,7 @@ font-size:12pt
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Text Width</string>
@@ -369,10 +359,7 @@ font-size:12pt
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Line Spacing</string>
@@ -427,10 +414,7 @@ font-size:12pt
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Side Text Bottom Margin</string>
@@ -472,10 +456,7 @@ font-size:12pt
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Label Type</string>
@@ -554,10 +535,7 @@ background-color:rgb(218, 221, 222)
                   </sizepolicy>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font-family:Nirmala UI;
-font-size:12pt
-
-</string>
+                  <string notr="true">font-size:10pt</string>
                  </property>
                  <property name="text">
                   <string>Font Size</string>
@@ -758,7 +736,7 @@ margin:0px 2px 0px 2px
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">font-size:12pt</string>
+                <string notr="true">font-size:10pt</string>
                </property>
                <property name="text">
                 <string>Database Name</string>
@@ -922,7 +900,7 @@ font-family:Nirmala UI;</string>
                    <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1038,7 +1016,7 @@ margin:0px 2px 0px 2px
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">font-size:12pt</string>
+                <string notr="true">font-size:10pt</string>
                </property>
                <property name="text">
                 <string>Pharmacy ID</string>
@@ -1098,7 +1076,7 @@ font-size:11pt</string>
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">font-size:12pt</string>
+                <string notr="true">font-size:10pt</string>
                </property>
                <property name="text">
                 <string>Get AI Dates API url</string>
@@ -1138,7 +1116,7 @@ font-size:11pt</string>
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">font-size:12pt</string>
+                <string notr="true">font-size:10pt</string>
                </property>
                <property name="text">
                 <string>API Token</string>
@@ -1178,7 +1156,7 @@ font-size:11pt</string>
                 </sizepolicy>
                </property>
                <property name="styleSheet">
-                <string notr="true">font-size:12pt</string>
+                <string notr="true">font-size:10pt</string>
                </property>
                <property name="text">
                 <string>Webhook Fill API url</string>
