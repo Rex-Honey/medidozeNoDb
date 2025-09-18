@@ -150,7 +150,7 @@ class SettingsWindow(QWidget):
                 json.dump(self.config, f, indent=4)
             self.infoSettings.setText(f"OatRx settings saved successfully")
             self.infoSettings.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
-            QTimer.singleShot(4000, self.clear_info_messages)
+            QTimer.singleShot(2000, self.clearInfoMessages)
         except Exception as e:
             print(e)
 
@@ -208,7 +208,7 @@ class SettingsWindow(QWidget):
                 json.dump(lblSettings, f, indent=4)
             self.infoSettings.setText(f"Label settings saved successfully")
             self.infoSettings.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
-            QTimer.singleShot(4000, self.clear_info_messages)
+            QTimer.singleShot(2000, self.clearInfoMessages)
         except Exception as e:
             print(e)
             
@@ -240,7 +240,7 @@ class SettingsWindow(QWidget):
     #                 self.infoViewDispense.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
     #             else:
     #                 self.infoViewDispense.setStyleSheet("background:#fac8c5;color:red;padding:12px;border-radius:none")
-    #         QTimer.singleShot(4000, self.clear_info_messages)
+    #         QTimer.singleShot(2000, self.clearInfoMessages)
     #         self.worker_thread.quit()
     #         self.worker_thread.wait()
     #         self.worker_thread.disconnect()
@@ -262,7 +262,7 @@ class SettingsWindow(QWidget):
                 
     #             self.infoSettings.setText(f"Connected to {database} database")
     #             self.infoSettings.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
-    #             QTimer.singleShot(4000, self.clear_info_messages)
+    #             QTimer.singleShot(2000, self.clearInfoMessages)
     #             self.animateLblSettings.setMovie(self.syncMovie)
     #             self.frameSettingBtns.hide()
     #             self.frameSync.show()
@@ -292,4 +292,8 @@ class SettingsWindow(QWidget):
     #         print("updated")
     #     except Exception as e:
     #         print(e)
+
+    def clearInfoMessages(self):
+        self.infoSettings.setText("")
+        self.infoSettings.setStyleSheet("background:none")
 
