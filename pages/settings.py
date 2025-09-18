@@ -22,6 +22,8 @@ class SettingsWindow(QWidget):
         ui_path = os.path.join(rootDir, "uiFiles", "settings.ui")
         uic.loadUi(ui_path, self)
 
+        self.getPrinterList()
+
         # self.btn_save_db.clicked.connect(partial(self.save_database_credential,triggerBy="Save"))
         # self.btn_edit_db.clicked.connect(self.edit_database_credential)
         # self.btn_cancel_settings.clicked.connect(self.cancel_settings_event)
@@ -31,6 +33,29 @@ class SettingsWindow(QWidget):
         # self.comboLabelType.currentTextChanged.connect(self.changeLabelType)
         # self.loadLabelSettings()
 
+    def getPrinterList(self):
+        try:
+            printers = []
+            printersList=[]
+            for i in range(self.selectPrinterCombo.count()):
+                if i>0:
+                    self.selectPrinterCombo.removeItem(1)
+            for printer in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS):
+                printer_info = {
+                    'name': printer[2],  # Printer name
+                    'port': printer[1],  # Port name
+                    'description': printer[2],  # Description
+                    'is_default': printer[2] == win32print.GetDefaultPrinter()  # Check if it's the default printer
+                }
+                printers.append(printer_info)
+                printersList.append(printer[2])
+                self.selectPrinterCombo.addItem(printer[2])
+            
+            if self.defaultPrinter and self.defaultPrinter in printersList:
+                self.selectPrinterCombo.setCurrentText(self.defaultPrinter)
+            print()
+        except Exception as e:
+            print(e)
 
     # def SaveOatRxSettings(self):
     #     try:
@@ -164,29 +189,6 @@ class SettingsWindow(QWidget):
     #     except Exception as e:
     #         print(e)
             
-    # def getPrinterList(self):
-    #     try:
-    #         printers = []
-    #         printersList=[]
-    #         for i in range(self.selectPrinterCombo.count()):
-    #             if i>0:
-    #                 self.selectPrinterCombo.removeItem(1)
-    #         for printer in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS):
-    #             printer_info = {
-    #                 'name': printer[2],  # Printer name
-    #                 'port': printer[1],  # Port name
-    #                 'description': printer[2],  # Description
-    #                 'is_default': printer[2] == win32print.GetDefaultPrinter()  # Check if it's the default printer
-    #             }
-    #             printers.append(printer_info)
-    #             printersList.append(printer[2])
-    #             self.selectPrinterCombo.addItem(printer[2])
-            
-    #         if self.defaultPrinter and self.defaultPrinter in printersList:
-    #             self.selectPrinterCombo.setCurrentText(self.defaultPrinter)
-    #         print()
-    #     except Exception as e:
-    #         print(e)
 
     # def responseUpdateDispenseData(self,status,message,triggerBy):
     #     try:
