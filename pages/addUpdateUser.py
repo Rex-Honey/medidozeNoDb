@@ -148,16 +148,13 @@ class AddUpdateUserWindow(QWidget):
                     errWid.setText(errMsg)
                     return
 
-            username=self.txt_username.text()
+            oatrxId=self.txtOatrxId.text()
+            if not oatrxId:
+                oatrxId=None
+
             password=self.txt_password.text()
             confirmPassword=self.txt_confirm_password.text()
-            fname=self.txt_fname.text()
-            lname=self.txt_lname.text()
-            oatrxId=self.txtOatrxId.text()
-            otp=self.txtOtp.text()
-
-            # Password validation - check if passwords match when password is provided
-            if password:  # If password is provided (in both add and update modes)
+            if password:
                 if password != confirmPassword:
                     setState(self.txt_confirm_password, "err")
                     self.err_confirm_password.setText("Password and Confirm Password do not match")
@@ -168,12 +165,17 @@ class AddUpdateUserWindow(QWidget):
                 isAdmin="Y"
             else:
                 isAdmin="N"
+
+            otp=self.txtOtp.text()
             if otp:
                 hashOtp=sha256(otp.encode()).hexdigest()
             else:
                 hashOtp=None
             
             
+            username=self.txt_username.text()
+            fname=self.txt_fname.text()
+            lname=self.txt_lname.text()
             try:
                 localCursor = self.localConn.cursor()
                 
