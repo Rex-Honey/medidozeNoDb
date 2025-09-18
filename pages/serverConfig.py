@@ -44,7 +44,7 @@ class ServerConfigWindow(QWidget):
             serverName=self.txtServerName.text()
             username=self.txtUsername.text()
             password=self.txtPassword.text()
-            localDatabase="medidozeSyncMed"
+            localDatabase="medidozeSyncMedAI"
 
             # serverIP="192.168.29.151"
             # serverPort="1433"
@@ -105,7 +105,7 @@ class ServerConfigWindow(QWidget):
                 documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
                 medidozeDir = os.path.join(documentsDir, 'medidoze')
                 os.makedirs(medidozeDir, exist_ok=True)
-                with open(os.path.join(medidozeDir, 'configN.json'), 'w', encoding='utf-8') as f:
+                with open(os.path.join(medidozeDir, 'configAI.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)
             else:
@@ -235,7 +235,7 @@ class ServerConfigWindow(QWidget):
             )""")
             print("-- Patient table query executed")
 
-            local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'refills') CREATE TABLE refills (
+            local_cursor.execute(f"""IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'refill') CREATE TABLE refill (
                 id INT PRIMARY KEY IDENTITY,
                 patientID BIGINT,
                 medDate DATETIME NOT NULL,

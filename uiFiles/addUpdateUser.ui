@@ -10,6 +10,11 @@
     <height>710</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Nirmala UI</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -755,6 +760,9 @@ font-weight:700;</string>
           </item>
           <item alignment="Qt::AlignTop">
            <widget class="QComboBox" name="statusIsAdmin">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="styleSheet">
              <string notr="true">#statusIsAdmin{
 background:#F4F7F9;

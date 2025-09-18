@@ -66,8 +66,8 @@ class SignInWindow(QWidget):
 
             username = self.txtUsername.text()
             password = self.txtPassword.text()
-            # username="bb"
-            # password="bb"
+            username="aa"
+            password="aa"
             hashed_password = sha256(password.encode()).hexdigest()
             local_cursor = self.local_conn.cursor()
             query = f"select * from users where uid='{username}';"

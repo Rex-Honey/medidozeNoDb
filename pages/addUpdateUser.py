@@ -194,9 +194,8 @@ class AddUpdateUserWindow(QWidget):
                 else:
                     # Insert new user
                     hashedPassword = sha256(password.encode()).hexdigest()
-                    formatCreatedDate = currentDatetime.strftime('%Y-%m-%d %H:%M:%S')
                     query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-                    params = (username, oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], formatCreatedDate, formatCreatedDate)
+                    params = (username, oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], datetime.now(), datetime.now())
                     localCursor.execute(query,params)
                     self.localConn.commit()
                     self.infoAddUser.setText("New User Registered Successfully !!")

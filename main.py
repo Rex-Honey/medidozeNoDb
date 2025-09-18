@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
 
     def checkConfig(self):
         try:
-            with open(os.path.join(self.documentsDir, 'medidoze', 'configN.json'), 'r', encoding='utf-8') as f:
+            with open(os.path.join(self.documentsDir, 'medidoze', 'configAI.json'), 'r', encoding='utf-8') as f:
                 config = json.load(f)
             connString = (
                 f"DRIVER={{SQL Server}};"
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         # Update global config with user data
         from otherFiles.config import updateUserData
         updateUserData(userData)
-        print(f"User data updated: {userData}")
+        print(f"User data updated")
         
         # Create MainAppWindow without parameters
         self.mainAppWindow = MainAppWindow()
