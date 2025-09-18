@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QStackedLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QStackedLayout, QMessageBox
 from PyQt6.QtCore import Qt, QStandardPaths
 from PyQt6.QtGui import QFont, QIcon
 import json, pyodbc, sys, os, resr
@@ -67,7 +67,6 @@ class MainWindow(QMainWindow):
         medidozeDir = os.path.join(self.documentsDir, 'medidoze')
         localConn = pyodbc.connect(connString)
         initializeConfig(config, connString, None, medidozeDir, localConn)
-        print("Global config initialized successfully!")
 
         self.config = config
         self.connString = connString
@@ -75,6 +74,10 @@ class MainWindow(QMainWindow):
         self.signInWindow.setConfig(connString)
 
     def loginSuccess(self, userData):
+        # Check if user can login based on role and WinRx configuration
+        if not self.canUserLogin(userData):
+            return
+        
         # Update global config with user data
         from otherFiles.config import updateUserData
         updateUserData(userData)
@@ -87,6 +90,37 @@ class MainWindow(QMainWindow):
         self.stackLayout.addWidget(self.mainAppWindow)
         print("MainAppWindow created successfully!")
         self.stackLayout.setCurrentWidget(self.mainAppWindow)
+
+    def canUserLogin(self, userData):
+        """Check if user can login based on role and WinRx configuration"""
+        try:
+            # Check if user is admin
+            isAdmin = userData.get('isAdmin') == 'Y'
+            
+            # Check if WinRx database is configured
+            hasWinRxDatabase = (self.config and 
+                              self.config.get('winrx_database') and 
+                              self.config.get('winrx_database').strip())
+            
+            if not isAdmin and not hasWinRxDatabase:
+                # Non-admin user without WinRx database - cannot login
+                QMessageBox.warning(
+                    self, 
+                    "Login Restricted", 
+                    "You cannot login at this time. WinRx database is not configured yet. Please contact your administrator."
+                )
+                return False
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error checking login permissions: {e}")
+            QMessageBox.critical(
+                self, 
+                "Login Error", 
+                "An error occurred while checking login permissions. Please try again."
+            )
+            return False
 
     def handleLogout(self):
         """Handle logout request from MainAppWindow"""

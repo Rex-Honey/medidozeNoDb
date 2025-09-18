@@ -13,7 +13,7 @@ def initializeConfig(configData, connStringData, userDataData, medidozeDirData, 
     userData = userDataData
     medidozeDir = medidozeDirData
     localConn = localConnData
-    print(f"Config initialized - config: {config is not None}, localConn: {localConn is not None}")
+    print(f"Config initialized - config: {config}, localConn: {localConn is not None}")
 
 def updateUserData(newUserData):
     """Update user data"""

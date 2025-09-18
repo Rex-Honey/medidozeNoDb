@@ -18,6 +18,8 @@ import pyodbc, os
 class MainAppWindow(QWidget):
     # Signal to notify main window about logout
     logoutRequested = pyqtSignal()
+    # Signal to notify when WinRx database is configured
+    winRxConfigured = pyqtSignal()
     
     def __init__(self):  # No parameters needed
         super().__init__()
@@ -52,36 +54,8 @@ class MainAppWindow(QWidget):
         sidebarLayout.addWidget(self._divider())
         sidebarLayout.addSpacing(10)
 
-        # Sidebar buttons (icon, label) - Store window classes instead of instances
-        self.buttons = []
-        self.sidebarItems = [
-            ("Dashboard", "dash.png", DashboardWindow),
-            ("Dispense", "dispense.png", DispenseWindow),
-            ("Instant Dose", "dispense.png", InstantDoseWindow),
-            ("Prime Pump", "dispense.png", PrimeWindow),
-            ("Calibrate Pump", "dispense.png", CalibrationWindow),
-            ("Patients", "patient_icon.png", PatientsWindow),
-            ("DIN Management", "list.svg", DinWindow),
-            ("Pharmacy Users", "users.svg", PharmacyUsersWindow),
-            ("Stock Management", "list.svg", PrimeWindow),
-            ("Reports", "list.svg", PrimeWindow),
-            ("Settings", "setting.svg", "settings"),
-            ("Logout", "logout.svg", "logout"),  # Special case for logout
-        ]
-
-        self.stack = QStackedLayout()
-        
-        for idx, (label, iconFile, windowClass) in enumerate(self.sidebarItems):
-            btn = QPushButton(f"  {label}")
-            btn.setIcon(QIcon(os.path.join(moduleDir, "images", iconFile)))
-            btn.setIconSize(QSize(20, 20))
-            btn.setCheckable(True)
-            btn.setProperty("sidebarButton", True)  # For QSS
-            btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.clicked.connect(lambda checked, i=idx: self.switchPage(i))
-            sidebarLayout.addWidget(btn)
-            self.buttons.append(btn)
+        # Create sidebar based on user role and WinRx configuration
+        self.createSidebar(sidebarLayout, moduleDir)
 
         sidebarLayout.addStretch()
 
@@ -98,6 +72,86 @@ class MainAppWindow(QWidget):
         # Initialize the first page after UI is fully set up
         self.switchPage(0)
 
+    def createSidebar(self, sidebarLayout, moduleDir):
+        """Create sidebar based on user role and WinRx configuration"""
+        # Import config to check user role and WinRx database
+        from otherFiles.config import config, userData
+        
+        # Check if user is admin
+        isAdmin = userData and userData.get('isAdmin') == 'Y'
+        
+        # Check if WinRx database is configured
+        hasWinRxDatabase = config and config.get('winrx_database') and config.get('winrx_database').strip()
+        
+        # Define all possible sidebar items
+        allSidebarItems = [
+            ("Dashboard", "dash.png", DashboardWindow),
+            ("Dispense", "dispense.png", DispenseWindow),
+            ("Instant Dose", "dispense.png", InstantDoseWindow),
+            ("Prime Pump", "dispense.png", PrimeWindow),
+            ("Calibrate Pump", "dispense.png", CalibrationWindow),
+            ("Patients", "patient_icon.png", PatientsWindow),
+            ("DIN Management", "list.svg", DinWindow),
+            ("Pharmacy Users", "users.svg", PharmacyUsersWindow),
+            ("Stock Management", "list.svg", PrimeWindow),
+            ("Reports", "list.svg", PrimeWindow),
+            ("Settings", "setting.svg", "settings"),
+            ("Logout", "logout.svg", "logout"),
+        ]
+        
+        # Determine which items to show
+        if isAdmin and not hasWinRxDatabase:
+            # Admin user without WinRx database - show only Settings and Logout
+            self.sidebarItems = [
+                ("Settings", "setting.svg", "settings"),
+                ("Logout", "logout.svg", "logout"),
+            ]
+        else:
+            # All other cases - show all items
+            self.sidebarItems = allSidebarItems
+        
+        # Create buttons
+        self.buttons = []
+        for idx, (label, iconFile, windowClass) in enumerate(self.sidebarItems):
+            btn = QPushButton(f"  {label}")
+            btn.setIcon(QIcon(os.path.join(moduleDir, "images", iconFile)))
+            btn.setIconSize(QSize(20, 20))
+            btn.setCheckable(True)
+            btn.setProperty("sidebarButton", True)  # For QSS
+            btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.clicked.connect(lambda checked, i=idx: self.switchPage(i))
+            sidebarLayout.addWidget(btn)
+            self.buttons.append(btn)
+        
+        # Create stack layout
+        self.stack = QStackedLayout()
+
+    def refreshSidebar(self):
+        """Refresh sidebar when WinRx database is configured"""
+        # Clear existing sidebar
+        for btn in self.buttons:
+            btn.deleteLater()
+        self.buttons.clear()
+        
+        # Recreate sidebar with all items
+        moduleDir = os.path.dirname(os.path.dirname(__file__))
+        sidebarWidget = self.findChild(QWidget, "SidebarWidget")
+        if sidebarWidget:
+            sidebarLayout = sidebarWidget.layout()
+            # Remove existing buttons (keep logo and divider)
+            for i in reversed(range(sidebarLayout.count())):
+                item = sidebarLayout.itemAt(i)
+                if item and item.widget() and item.widget().objectName() != "SidebarLogo":
+                    if not item.widget().objectName().startswith("divider"):
+                        item.widget().deleteLater()
+            
+            # Recreate sidebar with all items
+            self.createSidebar(sidebarLayout, moduleDir)
+            
+            # Switch to dashboard
+            self.switchPage(0)
+
     def _divider(self):
         line = QLabel()
         line.setFixedHeight(1)
@@ -109,12 +163,12 @@ class MainAppWindow(QWidget):
             btn.setChecked(i == index)
         
         # Handle settings page specially
-        if index == 10:  # Settings page
+        if self.sidebarItems[index][0] == "Settings":
             self._handleSettingsPage()
             return
         
         # Handle logout page specially
-        if index == 11:  # Logout page
+        if self.sidebarItems[index][0] == "Logout":
             self._handleLogout()
             return
         
@@ -157,12 +211,16 @@ class MainAppWindow(QWidget):
                     btn.setChecked(False)
             else:
                 # User cancelled logout, uncheck the logout button
-                self.buttons[11].setChecked(False)
+                logoutIndex = next((i for i, item in enumerate(self.sidebarItems) if item[0] == "Logout"), -1)
+                if logoutIndex >= 0:
+                    self.buttons[logoutIndex].setChecked(False)
                 
         except Exception as e:
             print(f"Error during logout: {e}")
             # Reset button state on error
-            self.buttons[11].setChecked(False)
+            logoutIndex = next((i for i, item in enumerate(self.sidebarItems) if item[0] == "Logout"), -1)
+            if logoutIndex >= 0:
+                self.buttons[logoutIndex].setChecked(False)
 
     def _handleSettingsPage(self):
         """Handle the settings page with authentication check"""
@@ -213,6 +271,10 @@ class MainAppWindow(QWidget):
         """Switch to the actual settings page after authentication"""
         try:
             pageWidget = SettingsWindow()  # No parameters needed
+            # Connect signal to refresh sidebar when WinRx is configured
+            if hasattr(pageWidget, 'winRxConfigured'):
+                pageWidget.winRxConfigured.connect(self.refreshSidebar)
+            
             pageContainer = PageContainer("Settings", pageWidget)
             
             # Clear the stack and add the new page
