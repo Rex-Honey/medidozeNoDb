@@ -1,6 +1,6 @@
 # pages/settings_page.py
 from PyQt6 import uic
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QMessageBox
 from PyQt6.QtGui import QMovie
 from PyQt6.QtCore import QTimer,QThread,pyqtSignal
 import os, pyodbc,win32print,json,requests
@@ -729,8 +729,8 @@ class SettingsWindow(QWidget):
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return
-        rootDir = os.path.dirname(os.path.dirname(__file__))
-        ui_path = os.path.join(rootDir, "uiFiles", "settings.ui")
+        self.rootDir = os.path.dirname(os.path.dirname(__file__))
+        ui_path = os.path.join(self.rootDir, "uiFiles", "settings.ui")
         uic.loadUi(ui_path, self)
 
         self.worker = Worker()
@@ -955,14 +955,24 @@ class SettingsWindow(QWidget):
             QTimer.singleShot(2000, self.clearInfoMessages)
             self.worker_thread.quit()
             self.worker_thread.wait()
-            self.worker_thread.disconnect()
+            try:
+                self.worker.updateDispenseData.disconnect()
+                self.worker_thread.started.disconnect()
+            except TypeError:
+                pass
+            # Clean up objects
+            self.worker.deleteLater()
+            self.worker_thread.deleteLater()
         except Exception as e:
             print(e)
 
     def save_database_credential(self,triggerBy=None):
         try:
-            module_dir = os.path.dirname(__file__)
-            self.syncMovie = QMovie(os.path.join(module_dir, 'images', 'diagram3.gif'))
+            reply = QMessageBox.warning(self, 'Medidoze alert',
+            f"This will save the database credential and sync with winrx database. Do you want to proceed ?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+            if reply == QMessageBox.StandardButton.No:
+                return
+            self.syncMovie = QMovie(os.path.join(self.rootDir, 'images', 'diagram3.gif'))
             if triggerBy=="Save":
                 self.err_database.setText("")
                 self.txt_database.setStyleSheet("border:1px solid  #e1e4e6;font-weight: 500;padding:10px;")

@@ -85,3 +85,16 @@ QLabel#containerTitleLabel {
 QLabel#containerInfoLabel {
     margin-left: 8px;
 }
+
+QMessageBox {
+    background-color: white;
+}
+
+QMessageBox QLabel {
+    background-color: transparent;
+    color: black;
+}
+
+QMessageBox QFrame {
+    background-color: transparent;
+}
