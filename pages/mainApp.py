@@ -74,6 +74,66 @@ class MainAppWindow(QWidget):
 
     def createSidebar(self, sidebarLayout, moduleDir):
         """Create sidebar based on user role and WinRx configuration"""
+        # Create sidebar items
+        self._createSidebarItems(sidebarLayout, moduleDir)
+        
+        # Create stack layout (only during initial creation)
+        self.stack = QStackedLayout()
+
+    def refreshSidebar(self):
+        """Refresh sidebar when WinRx database is configured"""
+        # Clear existing sidebar
+        for btn in self.buttons:
+            btn.deleteLater()
+        self.buttons.clear()
+        
+        # Get the sidebar widget and its layout
+        moduleDir = os.path.dirname(os.path.dirname(__file__))
+        sidebarWidget = self.findChild(QWidget, "SidebarWidget")
+        if sidebarWidget:
+            sidebarLayout = sidebarWidget.layout()
+            
+            # Remove only the button widgets, preserve logo, dividers, and spacing
+            items_to_remove = []
+            for i in reversed(range(sidebarLayout.count())):
+                item = sidebarLayout.itemAt(i)
+                if item:
+                    if item.widget():
+                        widget = item.widget()
+                        # Keep logo and dividers, remove only buttons
+                        if (widget.objectName() != "SidebarLogo" and 
+                            not widget.objectName().startswith("divider") and
+                            isinstance(widget, QPushButton)):
+                            items_to_remove.append(i)
+                    elif item.spacerItem():
+                        # Remove stretch items but keep spacing items
+                        spacer = item.spacerItem()
+                        # Only remove stretch items (vertical spacers), keep fixed spacing
+                        if spacer and spacer.expandingDirections() & Qt.Orientation.Vertical:
+                            items_to_remove.append(i)
+            
+            # Remove items
+            for i in items_to_remove:
+                item = sidebarLayout.itemAt(i)
+                if item:
+                    if item.widget():
+                        widget = item.widget()  # Store widget reference before removing
+                        sidebarLayout.removeWidget(widget)
+                        widget.deleteLater()  # Now safe to call deleteLater
+                    else:
+                        sidebarLayout.removeItem(item)
+            
+            # Recreate sidebar items
+            self._createSidebarItems(sidebarLayout, moduleDir)
+            
+            # Add stretch at the end to maintain top alignment (same as initial creation)
+            sidebarLayout.addStretch()
+            
+            # Switch to dashboard
+            self.switchPage(0)
+
+    def _createSidebarItems(self, sidebarLayout, moduleDir):
+        """Create sidebar items without recreating the stack layout"""
         # Import config to check user role and WinRx database
         from otherFiles.config import config, userData
         
@@ -110,7 +170,7 @@ class MainAppWindow(QWidget):
             # All other cases - show all items
             self.sidebarItems = allSidebarItems
         
-        # Create buttons
+        # Create buttons with exact same properties as initial creation
         self.buttons = []
         for idx, (label, iconFile, windowClass) in enumerate(self.sidebarItems):
             btn = QPushButton(f"  {label}")
@@ -123,34 +183,6 @@ class MainAppWindow(QWidget):
             btn.clicked.connect(lambda checked, i=idx: self.switchPage(i))
             sidebarLayout.addWidget(btn)
             self.buttons.append(btn)
-        
-        # Create stack layout
-        self.stack = QStackedLayout()
-
-    def refreshSidebar(self):
-        """Refresh sidebar when WinRx database is configured"""
-        # Clear existing sidebar
-        for btn in self.buttons:
-            btn.deleteLater()
-        self.buttons.clear()
-        
-        # Recreate sidebar with all items
-        moduleDir = os.path.dirname(os.path.dirname(__file__))
-        sidebarWidget = self.findChild(QWidget, "SidebarWidget")
-        if sidebarWidget:
-            sidebarLayout = sidebarWidget.layout()
-            # Remove existing buttons (keep logo and divider)
-            for i in reversed(range(sidebarLayout.count())):
-                item = sidebarLayout.itemAt(i)
-                if item and item.widget() and item.widget().objectName() != "SidebarLogo":
-                    if not item.widget().objectName().startswith("divider"):
-                        item.widget().deleteLater()
-            
-            # Recreate sidebar with all items
-            self.createSidebar(sidebarLayout, moduleDir)
-            
-            # Switch to dashboard
-            self.switchPage(0)
 
     def _divider(self):
         line = QLabel()
