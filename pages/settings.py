@@ -584,6 +584,9 @@ class Worker(QThread):
         return dictfetchall(cursor)
 
 class SettingsWindow(QWidget):
+    # Signal to notify main app when WinRx is configured
+    winRxConfigured = pyqtSignal()
+    
     def __init__(self):
         super().__init__()
         from otherFiles.config import config, connString, userData, medidozeDir, localConn
@@ -838,6 +841,8 @@ class SettingsWindow(QWidget):
                     self.config['winrxDbName'] = self.txtDatabase.text()
                     with open(os.path.join(self.medidozeDir, 'configAI.json'), 'w', encoding='utf-8') as f:
                         json.dump(self.config, f, indent=4)
+
+                    self.winRxConfigured.emit()
                 else:
                     self.infoSettings.setStyleSheet("background:#fac8c5;color:red;padding:12px;border-radius:none")
             else:

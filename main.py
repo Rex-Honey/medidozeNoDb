@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
             
             # Check if WinRx database is configured
             hasWinRxDatabase = (self.config and 
-                              self.config.get('winrx_database') and 
-                              self.config.get('winrx_database').strip())
+                              self.config.get('winrxDbName') and 
+                              self.config.get('winrxDbName').strip())
             
             if not isAdmin and not hasWinRxDatabase:
                 # Non-admin user without WinRx database - cannot login

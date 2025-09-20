@@ -81,7 +81,7 @@ class MainAppWindow(QWidget):
         isAdmin = userData and userData.get('isAdmin') == 'Y'
         
         # Check if WinRx database is configured
-        hasWinRxDatabase = config and config.get('winrx_database') and config.get('winrx_database').strip()
+        hasWinRxDatabase = config and config.get('winrxDbName') and config.get('winrxDbName').strip()
         
         # Define all possible sidebar items
         allSidebarItems = [
