@@ -128,9 +128,6 @@ class MainAppWindow(QWidget):
             
             # Add stretch at the end to maintain top alignment (same as initial creation)
             sidebarLayout.addStretch()
-            
-            # Switch to dashboard
-            self.switchPage(0)
 
     def _createSidebarItems(self, sidebarLayout, moduleDir):
         """Create sidebar items without recreating the stack layout"""
