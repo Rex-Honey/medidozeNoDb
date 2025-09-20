@@ -166,6 +166,9 @@ margin:0px 2px 0px 2px
                  <pointsize>10</pointsize>
                 </font>
                </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
                </property>
@@ -477,6 +480,9 @@ background-color:rgb(218, 221, 222)
                    <pointsize>10</pointsize>
                   </font>
                  </property>
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
                  </property>
@@ -555,6 +561,9 @@ background-color:rgb(218, 221, 222)
                    <family>Nirmala UI</family>
                    <pointsize>10</pointsize>
                   </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
                  </property>
                  <property name="focusPolicy">
                   <enum>Qt::NoFocus</enum>
@@ -744,7 +753,7 @@ margin:0px 2px 0px 2px
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="txt_database">
+              <widget class="QLineEdit" name="txtDatabase">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -772,7 +781,7 @@ font-size:11pt</string>
               </widget>
              </item>
              <item alignment="Qt::AlignLeft">
-              <widget class="QLabel" name="err_database">
+              <widget class="QLabel" name="errDatabase">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                  <horstretch>0</horstretch>
@@ -895,7 +904,7 @@ font-family:Nirmala UI;</string>
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="btn_save_db">
+                 <widget class="QPushButton" name="btnSaveDb">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
