@@ -7,7 +7,7 @@ import os, pyodbc
 from otherFiles.common import dictfetchall,setState,medidozeDir
 from functools import partial
 import base64
-
+from datetime import datetime
 
 def getRoundedPixmap(pixmap, size):
     rounded = QPixmap(size, size)
@@ -61,7 +61,7 @@ class PharmacyUsersWindow(QWidget):
                     INSERT INTO users (uid, password, firstName, lastName, isAdmin, isActive, isSoftDlt, createdByMedidoze, createdBy, updatedBy, createdDate, updatedDate) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """ 
-                    params = (row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],self.loginUser,datetime.now(),row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],'N','Y','N','N', self.loginUser,self.loginUser,datetime.now(),datetime.now())
+                    params = (row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],self.userData['uid'],datetime.now(),row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],'N','Y','N','N', self.userData['uid'],self.userData['uid'],datetime.now(),datetime.now())
                     local_cursor.execute(query,params)
             self.local_conn.commit()
             self.infoViewUsers.setText("Users synced successfully!!")

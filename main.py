@@ -50,11 +50,10 @@ class MainWindow(QMainWindow):
             localConn.close()
 
             if config['winrxDbName']:
-                live_db = f'DRIVER={{SQL Server}};SERVER={config['server']};DATABASE={config['winrxDbName']};UID={config['username']};PWD={config['password']};'
-                liveConn = pyodbc.connect(live_db)
+                liveString = f'DRIVER={{SQL Server}};SERVER={config['server']};DATABASE={config['winrxDbName']};UID={config['username']};PWD={config['password']};'
+                liveConn = pyodbc.connect(liveString)
                 print("Live connection successful!")
                 updateLiveConn(liveConn)
-                liveConn.close()
 
             self.updateServerConfig(config, localConnString)
         except FileNotFoundError:
