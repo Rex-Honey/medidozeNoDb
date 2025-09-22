@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
 
     def updateServerConfig(self, config, connString):
         localConn = pyodbc.connect(connString)
-        initializeConfig(config, connString, None, localConn)
+        initializeConfig(config, connString, localConn)
 
         self.config = config
         self.connString = connString
