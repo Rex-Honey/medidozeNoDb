@@ -2,16 +2,14 @@
 config = None
 connString = None
 userData = None
-medidozeDir = None
 localConn = None
 
-def initializeConfig(configData, connStringData, userDataData, medidozeDirData, localConnData):
+def initializeConfig(configData, connStringData, userDataData, localConnData):
     """Initialize global configuration"""
     global config, connString, userData, medidozeDir, localConn
     config = configData
     connString = connStringData
     userData = userDataData
-    medidozeDir = medidozeDirData
     localConn = localConnData
     print(f"Config initialized - config: {config}, localConn: {localConn is not None}")
 

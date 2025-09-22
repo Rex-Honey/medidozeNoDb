@@ -1,9 +1,10 @@
 import os
 from PyQt6.QtGui import QImage, QPixmap, QPainter, QBrush, QWindow
-from PyQt6.QtCore import Qt, QRect
+from PyQt6.QtCore import Qt, QRect, QStandardPaths
 
 rootDir = os.path.dirname(os.path.dirname(__file__))
 defaultUserImage = os.path.join(rootDir, "images", "user.jpg")
+medidozeDir = os.path.join(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation), 'medidoze')
 
 def find_widget_recursive(parent, target_type):
     """Recursively search for a widget of type target_type inside parent."""

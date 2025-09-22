@@ -64,9 +64,8 @@ class MainWindow(QMainWindow):
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
     def updateServerConfig(self, config, connString):
-        medidozeDir = os.path.join(self.documentsDir, 'medidoze')
         localConn = pyodbc.connect(connString)
-        initializeConfig(config, connString, None, medidozeDir, localConn)
+        initializeConfig(config, connString, None, localConn)
 
         self.config = config
         self.connString = connString

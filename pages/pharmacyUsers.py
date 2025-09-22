@@ -4,7 +4,7 @@ from PyQt6.QtGui import QFont, QIcon, QPixmap, QImage, QPainter, QPainterPath, Q
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6 import uic
 import os, pyodbc
-from otherFiles.common import dictfetchall,setState
+from otherFiles.common import dictfetchall,setState,medidozeDir
 from functools import partial
 import base64
 
@@ -26,7 +26,7 @@ class PharmacyUsersWindow(QWidget):
         super().__init__()
         
         # Import config inside __init__ to get the current values
-        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        from otherFiles.config import config, connString, userData, localConn
         
         # Check if config is available, if not show error
         if config is None or localConn is None:

@@ -6,7 +6,7 @@ from PyQt6.QtCore import QTimer, QThread, pyqtSignal
 import os, pyodbc, win32print, json, requests
 from functools import partial
 from datetime import datetime, timedelta
-from otherFiles.common import dictfetchall
+from otherFiles.common import dictfetchall,medidozeDir
 from decimal import Decimal, ROUND_DOWN
 
 
@@ -589,7 +589,7 @@ class SettingsWindow(QWidget):
     
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        from otherFiles.config import config, connString, userData, localConn
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return

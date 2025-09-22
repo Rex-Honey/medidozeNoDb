@@ -6,12 +6,13 @@ from PyQt6.QtCore import QTimer
 from datetime import datetime
 from hashlib import sha256
 from PyQt6.QtCore import QStandardPaths
-from otherFiles.common import setState
+from otherFiles.common import setState,medidozeDir
 
 class ServerConfigWindow(QWidget):
     serverSetUpDone = pyqtSignal(dict,str)
     def __init__(self):
         super().__init__()
+        self.medidozeDir = medidozeDir
         rootDir=os.path.dirname(os.path.dirname(__file__))
         uic.loadUi(os.path.join(rootDir, 'uiFiles', 'serverConfig.ui'), self)
         self.btnConnect.clicked.connect(self.connectServer)
@@ -103,9 +104,7 @@ class ServerConfigWindow(QWidget):
                     self.infoServerConfig.setStyleSheet("background:#fac8c5;border:1px solid #fac8c5;color:red;padding:10px;border-radius:none;font-size:9pt;font-family:Nirmala UI;")
                     QTimer.singleShot(4000, self.clear_info_messages)
                     return
-                documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
-                medidozeDir = os.path.join(documentsDir, 'medidoze')
-                os.makedirs(medidozeDir, exist_ok=True)
+                os.makedirs(self.medidozeDir, exist_ok=True)
                 with open(os.path.join(medidozeDir, 'configAI.json'), 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=4)
                 self.serverSetUpDone.emit(config,connectionString)

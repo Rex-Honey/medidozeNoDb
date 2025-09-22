@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget,QFileDialog
 from PyQt6.QtCore import QTimer
 from PyQt6 import uic
 import os, pyodbc, base64
-from otherFiles.common import setState,rootDir,defaultUserImage,roundImage,switchToPage
+from otherFiles.common import setState,rootDir,defaultUserImage,roundImage,switchToPage,medidozeDir
 from pages.pharmacyUsers import PharmacyUsersWindow
 from datetime import datetime
 from hashlib import sha256
@@ -10,7 +10,7 @@ from hashlib import sha256
 class AddUpdateUserWindow(QWidget):
     def __init__(self, userToEdit=None):
         super().__init__()
-        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        from otherFiles.config import config, connString, userData, localConn
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return

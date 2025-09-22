@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import pyqtSignal
 from PyQt6 import uic
 import os, pyodbc
-from otherFiles.common import dictfetchall
+from otherFiles.common import dictfetchall,medidozeDir
 from hashlib import sha256
 from pages.settings import SettingsWindow
 
@@ -11,7 +11,7 @@ class SettingsAuthWindow(QWidget):
     
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, connString, userData, medidozeDir, localConn
+        from otherFiles.config import config, connString, userData, localConn
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return

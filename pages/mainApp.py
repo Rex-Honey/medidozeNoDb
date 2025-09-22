@@ -27,7 +27,6 @@ class MainAppWindow(QWidget):
 
     def initUI(self):
         moduleDir = os.path.dirname(os.path.dirname(__file__))
-        self.medidozeDir = os.path.join(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation), 'medidoze')
 
         # Main layout: sidebar + main content
         mainLayout = QHBoxLayout(self)
