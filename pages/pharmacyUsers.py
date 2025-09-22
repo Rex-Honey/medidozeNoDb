@@ -26,7 +26,7 @@ class PharmacyUsersWindow(QWidget):
         super().__init__()
         
         # Import config inside __init__ to get the current values
-        from otherFiles.config import config, userData, localConn
+        from otherFiles.config import config, userData, localConn, liveConn
         
         # Check if config is available, if not show error
         if config is None or localConn is None:
@@ -38,6 +38,7 @@ class PharmacyUsersWindow(QWidget):
         self.userData = userData
         self.medidozeDir = medidozeDir
         self.local_conn = localConn
+        self.liveConn = liveConn
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
         uic.loadUi(uiPath, self)
@@ -47,7 +48,7 @@ class PharmacyUsersWindow(QWidget):
 
     def syncPharmacyUsers(self):
         try:
-            liveCursor=self.live_conn.cursor()
+            liveCursor=self.liveConn.cursor()
             liveCursor.execute(f"select * from EMPLOYEE")
             data=dictfetchall(liveCursor)
             local_cursor = self.local_conn.cursor()
@@ -65,7 +66,7 @@ class PharmacyUsersWindow(QWidget):
             self.local_conn.commit()
             self.infoViewUsers.setText("Users synced successfully!!")
             self.infoViewUsers.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
-            QTimer.singleShot(4000, self.clear_info_messages)
+            QTimer.singleShot(4000, self.clearInfoMessages)
         except Exception as e:
             print(e)
 

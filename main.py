@@ -5,7 +5,7 @@ import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 from pages.mainApp import MainAppWindow
-from otherFiles.config import setConfig
+from otherFiles.config import setLocalConfig, updateLiveConn
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -38,18 +38,25 @@ class MainWindow(QMainWindow):
         try:
             with open(os.path.join(self.documentsDir, 'medidoze', 'configAI.json'), 'r', encoding='utf-8') as f:
                 config = json.load(f)
-            connectionString = (
+            localConnString = (
                 f"DRIVER={{SQL Server}};"
                 f"SERVER={config['server']};"
                 f"DATABASE={config['local_database']};"
                 f"UID={config['username']};"
                 f"PWD={config['password']};"
             )
-            conn = pyodbc.connect(connectionString)
-            print("Connection successful!")
-            conn.close()
-            
-            self.updateServerConfig(config, connectionString)
+            localConn = pyodbc.connect(localConnString)
+            print("Local connection successful!")
+            localConn.close()
+
+            if config['winrxDbName']:
+                live_db = f'DRIVER={{SQL Server}};SERVER={config['server']};DATABASE={config['winrxDbName']};UID={config['username']};PWD={config['password']};'
+                liveConn = pyodbc.connect(live_db)
+                print("Live connection successful!")
+                updateLiveConn(liveConn)
+                liveConn.close()
+
+            self.updateServerConfig(config, localConnString)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
@@ -63,9 +70,9 @@ class MainWindow(QMainWindow):
             self.serverConfigWindow.serverSetUpDone.connect(self.updateServerConfig)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
-    def updateServerConfig(self, config, connectionString):
-        localConn = pyodbc.connect(connectionString)
-        setConfig(config, localConn)
+    def updateServerConfig(self, config, localConnString):
+        localConn = pyodbc.connect(localConnString)
+        setLocalConfig(config, localConn)
         self.config = config
 
     def loginSuccess(self, userData):
@@ -76,7 +83,6 @@ class MainWindow(QMainWindow):
         # Update global config with user data
         from otherFiles.config import updateUserData
         updateUserData(userData)
-        print(f"User data updated")
         
         # Create MainAppWindow without parameters
         self.mainAppWindow = MainAppWindow()

@@ -591,7 +591,7 @@ class SettingsWindow(QWidget):
         super().__init__()
         from otherFiles.config import config, userData, localConn
         if config is None or localConn is None:
-            print("Configuration not properly initialized. Please restart the application.")
+            print("Configuration not set. Please set the configuration first.")
             return
             
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
@@ -606,7 +606,7 @@ class SettingsWindow(QWidget):
         self.userData = userData
         self.medidozeDir = medidozeDir
         self.localConn = localConn
-        
+
         self.initializeSettings()
         self.setupConnections()
 
@@ -838,6 +838,8 @@ class SettingsWindow(QWidget):
                 if status == "success":
                     self.infoSettings.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
                     self.config['winrxDbName'] = self.txtDatabase.text()
+                    from otherFiles.config import updateLiveConn
+                    updateLiveConn(self.liveConn)
                     with open(os.path.join(self.medidozeDir, 'configAI.json'), 'w', encoding='utf-8') as f:
                         json.dump(self.config, f, indent=4)
 
@@ -856,7 +858,7 @@ class SettingsWindow(QWidget):
             QTimer.singleShot(2000, self.clearInfoMessages)
             self.cleanupWorker()
         except Exception as e:
-            print(f"Error in responseUpdateDispenseData: {e}")
+            print(f"Error in response Update Dispense Data: {e}")
 
     def cleanupWorker(self):
         """Clean up worker thread"""
