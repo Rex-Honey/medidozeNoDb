@@ -589,7 +589,7 @@ class SettingsWindow(QWidget):
     
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, connString, userData, localConn
+        from otherFiles.config import config, userData, localConn
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return
@@ -603,7 +603,6 @@ class SettingsWindow(QWidget):
         self.workerThread = None
 
         self.config = config
-        self.connString = connString
         self.userData = userData
         self.medidozeDir = medidozeDir
         self.localConn = localConn

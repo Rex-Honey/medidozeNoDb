@@ -9,6 +9,8 @@ class SignInWindow(QWidget):
     loginSuccess = pyqtSignal(dict)
     def __init__(self):
         super().__init__()
+        from otherFiles.config import localConn
+        self.localConn = localConn
         rootDir=os.path.dirname(os.path.dirname(__file__))
         uic.loadUi(os.path.join(rootDir, 'uiFiles', 'signin.ui'), self)
 
@@ -22,12 +24,6 @@ class SignInWindow(QWidget):
         self.errPassword.setText("")
         for frm in (self.frame_6, self.frame_7):
             setState(frm, "ok")
-
-    def setConfig(self,connString):
-        try:
-            self.local_conn = pyodbc.connect(connString)
-        except Exception as e:
-            print(e)
 
     def toggle_password_visibility(self, event):
         if self.txtPassword.echoMode() == QLineEdit.EchoMode.Password:
@@ -71,10 +67,10 @@ class SignInWindow(QWidget):
             username="admin"
             password="admin"
             hashed_password = sha256(password.encode()).hexdigest()
-            local_cursor = self.local_conn.cursor()
+            localCursor = self.localConn.cursor()
             query = f"select * from users where uid='{username}';"
-            local_cursor.execute(query)
-            data=dictfetchall(local_cursor)
+            localCursor.execute(query)
+            data=dictfetchall(localCursor)
             if data:
                 row=data[0]
             else:

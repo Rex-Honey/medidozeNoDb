@@ -26,7 +26,7 @@ class PharmacyUsersWindow(QWidget):
         super().__init__()
         
         # Import config inside __init__ to get the current values
-        from otherFiles.config import config, connString, userData, localConn
+        from otherFiles.config import config, userData, localConn
         
         # Check if config is available, if not show error
         if config is None or localConn is None:
@@ -35,7 +35,6 @@ class PharmacyUsersWindow(QWidget):
             return
             
         self.config = config
-        self.connString = connString
         self.userData = userData
         self.medidozeDir = medidozeDir
         self.local_conn = localConn
@@ -44,6 +43,31 @@ class PharmacyUsersWindow(QWidget):
         uic.loadUi(uiPath, self)
         self.fetchAllUsers()
         self.btnAddUser.clicked.connect(lambda: self.openAddEditUserPage())
+        self.btnSyncUsers.clicked.connect(self.syncPharmacyUsers)
+
+    def syncPharmacyUsers(self):
+        try:
+            liveCursor=self.live_conn.cursor()
+            liveCursor.execute(f"select * from EMPLOYEE")
+            data=dictfetchall(liveCursor)
+            local_cursor = self.local_conn.cursor()
+            if data:
+                for row in data:
+                    query = """ 
+                    IF EXISTS (SELECT 1 FROM users WHERE uid = ?)
+                    UPDATE users SET uid = ?, password=?, firstName=?, lastName = ?, updatedBy = ?, updatedDate = ? WHERE uid = ?
+                    ELSE
+                    INSERT INTO users (uid, password, firstName, lastName, isAdmin, isActive, isSoftDlt, createdByMedidoze, createdBy, updatedBy, createdDate, updatedDate) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """ 
+                    params = (row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],self.loginUser,datetime.now(),row['EMUSERID'],row['EMUSERID'],row['EMPASSWORD'],row['EMNAME'],row['EMSURNAME'],'N','Y','N','N', self.loginUser,self.loginUser,datetime.now(),datetime.now())
+                    local_cursor.execute(query,params)
+            self.local_conn.commit()
+            self.infoViewUsers.setText("Users synced successfully!!")
+            self.infoViewUsers.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
+            QTimer.singleShot(4000, self.clear_info_messages)
+        except Exception as e:
+            print(e)
 
     def openAddEditUserPage(self, userToEdit=None):
         try:

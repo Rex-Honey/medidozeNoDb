@@ -5,7 +5,7 @@ import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 from pages.mainApp import MainAppWindow
-from otherFiles.config import initializeConfig
+from otherFiles.config import setConfig
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -26,30 +26,30 @@ class MainWindow(QMainWindow):
         centralWidget.setLayout(self.stackLayout)
         self.setCentralWidget(centralWidget)
 
+        self.documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        self.checkConfig()
+
         self.signInWindow = SignInWindow()
         self.signInWindow.loginSuccess.connect(self.loginSuccess)
         self.stackLayout.addWidget(self.signInWindow)
-
-        self.documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
-
-        self.checkConfig()
+        self.stackLayout.setCurrentWidget(self.signInWindow)
 
     def checkConfig(self):
         try:
             with open(os.path.join(self.documentsDir, 'medidoze', 'configAI.json'), 'r', encoding='utf-8') as f:
                 config = json.load(f)
-            connString = (
+            connectionString = (
                 f"DRIVER={{SQL Server}};"
                 f"SERVER={config['server']};"
                 f"DATABASE={config['local_database']};"
                 f"UID={config['username']};"
                 f"PWD={config['password']};"
             )
-            conn = pyodbc.connect(connString)
+            conn = pyodbc.connect(connectionString)
             print("Connection successful!")
             conn.close()
             
-            self.updateServerConfig(config, connString)
+            self.updateServerConfig(config, connectionString)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
@@ -63,14 +63,10 @@ class MainWindow(QMainWindow):
             self.serverConfigWindow.serverSetUpDone.connect(self.updateServerConfig)
             self.stackLayout.setCurrentWidget(self.serverConfigWindow)
 
-    def updateServerConfig(self, config, connString):
-        localConn = pyodbc.connect(connString)
-        initializeConfig(config, connString, localConn)
-
+    def updateServerConfig(self, config, connectionString):
+        localConn = pyodbc.connect(connectionString)
+        setConfig(config, localConn)
         self.config = config
-        self.connString = connString
-        self.stackLayout.setCurrentWidget(self.signInWindow)
-        self.signInWindow.setConfig(connString)
 
     def loginSuccess(self, userData):
         # Check if user can login based on role and WinRx configuration

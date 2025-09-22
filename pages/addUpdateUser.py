@@ -11,12 +11,11 @@ from hashlib import sha256
 class AddUpdateUserWindow(QWidget):
     def __init__(self, userToEdit=None):
         super().__init__()
-        from otherFiles.config import config, connString, userData, localConn
+        from otherFiles.config import config, userData, localConn
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return
         self.config = config
-        self.connString = connString
         self.userData = userData
         self.userToEdit = userToEdit
         self.localConn = localConn
