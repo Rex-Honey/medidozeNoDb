@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QWidget,QFileDialog
 from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QIntValidator
 from PyQt6 import uic
 import os, pyodbc, base64
 from otherFiles.common import setState,rootDir,defaultUserImage,roundImage,switchToPage,medidozeDir
@@ -23,6 +24,15 @@ class AddUpdateUserWindow(QWidget):
         uiPath = os.path.join(rootDir, "uiFiles", "addUpdateUser.ui")
         uic.loadUi(uiPath, self)
         self.removeImage()
+
+        oatrxIdValidator=QIntValidator()
+        oatrxIdValidator.setRange(0, 99999999)
+        self.txtOatrxId.setValidator(oatrxIdValidator)
+
+        otpValidator=QIntValidator()
+        otpValidator.setRange(0, 9999)
+        self.txtOtp.setValidator(otpValidator)
+
         self.btnCancel.clicked.connect(self.cancelAndSwitch)
         self.btnLoadImage.clicked.connect(self.loadImage)
         self.statusIsAdmin.currentTextChanged.connect(self.changeIsAdmin)
@@ -151,7 +161,7 @@ class AddUpdateUserWindow(QWidget):
             oatrxId=self.txtOatrxId.text()
             if not oatrxId:
                 oatrxId=None
-
+            
             password=self.txt_password.text()
             confirmPassword=self.txt_confirm_password.text()
             if password:
@@ -196,8 +206,8 @@ class AddUpdateUserWindow(QWidget):
                 else:
                     # Insert new user
                     hashedPassword = sha256(password.encode()).hexdigest()
-                    query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
-                    params = (username, oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', self.userData['uid'], self.userData['uid'], datetime.now(), datetime.now())
+                    query = """ INSERT INTO users ( uid, oatRxId, password, otp, firstName, lastName, image, isAdmin, isActive, isSoftDlt,createdByMedidoze, createdBy, updatedBy, createdDate, updatedDate ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """
+                    params = (username, oatrxId, hashedPassword, hashOtp, fname, lname, self.imageStr, isAdmin, 'Y', 'N', 'Y', self.userData['uid'], self.userData['uid'], datetime.now(), datetime.now())
                     localCursor.execute(query,params)
                     self.localConn.commit()
                     self.infoAddUser.setText("New User Registered Successfully !!")
