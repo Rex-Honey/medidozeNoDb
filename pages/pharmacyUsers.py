@@ -25,26 +25,25 @@ class PharmacyUsersWindow(QWidget):
     def __init__(self):
         super().__init__()
         
-        # Import config inside __init__ to get the current values
         from otherFiles.config import config, userData, localConn, liveConn
-        
-        # Check if config is available, if not show error
         if config is None or localConn is None:
-            QMessageBox.critical(self, "Configuration Error", 
-                               "Configuration not properly initialized. Please restart the application.")
-            return
-            
+            QMessageBox.critical(self, "Configuration Error", "Configuration not properly initialized. Please restart the application.")
+            return          
+
         self.config = config
         self.userData = userData
         self.medidozeDir = medidozeDir
         self.local_conn = localConn
         self.liveConn = liveConn
+
         self.rootDir = os.path.dirname(os.path.dirname(__file__))
         uiPath = os.path.join(self.rootDir, "uiFiles", "pharmacyUsers.ui")
         uic.loadUi(uiPath, self)
-        self.fetchAllUsers()
+
+        self.txtSearchUser.textChanged.connect(self.fetchAllUsers)
         self.btnAddUser.clicked.connect(lambda: self.openAddEditUserPage())
         self.btnSyncUsers.clicked.connect(self.syncPharmacyUsers)
+        self.fetchAllUsers()
 
     def syncPharmacyUsers(self):
         try:
@@ -211,6 +210,8 @@ class PharmacyUsersWindow(QWidget):
                     # Connect edit button to open edit page with user data
                     btnEdit.clicked.connect(partial(self.openAddEditUserPage, rowData))
                     btnDlt.clicked.connect(partial(self.deleteUser, rowData['uid']))
+                else:
+                    self.table_view_user.setCellWidget(row, col, QWidget())
         except Exception as e:
             print(e)
 
@@ -218,7 +219,12 @@ class PharmacyUsersWindow(QWidget):
         try:
             print("--Fetching All Users..")
             localCursor = self.local_conn.cursor()
-            localCursor.execute("SELECT * FROM users where isSoftDlt='N' and uid != 'sys'")
+            searchText = self.txtSearchUser.text().strip()
+            baseQuery = "SELECT * FROM users where isSoftDlt='N' and uid != 'sys'"
+            if searchText:
+                localCursor.execute(baseQuery + " and (firstName like ? or lastName like ?)", (f"%{searchText}%", f"%{searchText}%"))
+            else:
+                localCursor.execute(baseQuery)
             data=dictfetchall(localCursor)
             self.addDataToUserTable(data)
         except Exception as e:
