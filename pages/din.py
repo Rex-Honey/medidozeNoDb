@@ -19,6 +19,8 @@ class DinWindow(QWidget):
         uic.loadUi(ui_path, self)
         self.switchViewDins()
 
+        self.comboBoxLeftPump.currentTextChanged.connect(self.medicationChanged)
+
     def switchViewDins(self):
         try:
             self.infoViewDins.setText("")
@@ -77,5 +79,25 @@ class DinWindow(QWidget):
             buttonLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the layout
             buttonLayout.setContentsMargins(10, 0, 5, 0)
             buttonLayout.addWidget(btnRemoveDin)
+        except Exception as e:
+            print(e)
+
+    def medicationChanged(self):
+        try:
+            self.dinTableLeft.setRowCount(0)
+            self.dinTableRight.setRowCount(0)
+            leftMedication=self.comboBoxLeftPump.currentText()
+            query = f"select din_groups.medication, din.din_number, din.strength, din.din_group_id from din join din_groups on din.din_group_id=din_groups.id"
+            local_cursor = self.local_conn.cursor()
+            local_cursor.execute(query)
+            data=dictfetchall(local_cursor)
+            print("")
+            if data:
+                for row in data:
+                    if row['medication']==leftMedication:
+                        self.addDinToTable(row['din_number'], row['medication'], row['strength'],self.dinTableLeft)
+                    else:
+                        self.addDinToTable(row['din_number'], row['medication'], row['strength'],self.dinTableRight)
+                        self.lblRightMedication.setText(row['medication'])
         except Exception as e:
             print(e)
