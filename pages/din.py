@@ -37,3 +37,45 @@ class DinWindow(QWidget):
                 self.comboBoxLeftPump.setCurrentText(leftPumpMedication)
         except Exception as e:
             print(e)
+
+    def addDinToTable(self,din,drugName,strength,table):
+        try:
+            row=table.rowCount()
+            table.setRowCount(row+1)
+
+            col=0
+            table.setColumnWidth(col,250)
+            dinWid=QTableWidgetItem(str(din))
+            dinWid.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            table.setItem(row,col,dinWid)
+
+            col+=1
+            table.setColumnWidth(col,446)
+            drugWid=QTableWidgetItem(drugName)
+            drugWid.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            table.setItem(row,col,drugWid)
+
+            col+=1
+            table.setColumnWidth(col,200)
+            strengthWid=QTableWidgetItem(strength)
+            strengthWid.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            table.setItem(row,col,strengthWid)
+
+            col+=1
+            btnRemoveDin = QPushButton("Remove")
+            btnRemoveDin.setStyleSheet("background-color:#fde5de;color:#f25022;margin:6px 80px 6px 0px;border-radius:6%")
+            btnRemoveDin.setFixedSize(160,40)
+            btnRemoveDin.setCursor(Qt.CursorShape.PointingHandCursor)
+            btnRemoveDin.clicked.connect(partial(self.removeDinFromTable,table,din,row))
+            
+            buttonWidget = QWidget()
+            buttonWidget.setStyleSheet("background: transparent;")
+            table.setCellWidget(row, col, buttonWidget)
+
+            buttonLayout = QHBoxLayout(buttonWidget)
+            buttonLayout.addStretch() 
+            buttonLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the layout
+            buttonLayout.setContentsMargins(10, 0, 5, 0)
+            buttonLayout.addWidget(btnRemoveDin)
+        except Exception as e:
+            print(e)
