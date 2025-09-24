@@ -1,8 +1,11 @@
-
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QTableWidgetItem, QPushButton, QWidget, QHBoxLayout, QMessageBox
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QIcon
 from PyQt6 import uic
 import os, pyodbc
 from otherFiles.common import dictfetchall
+from functools import partial
+
 
 class DinWindow(QWidget):
     def __init__(self):
@@ -17,9 +20,10 @@ class DinWindow(QWidget):
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "din.ui")
         uic.loadUi(ui_path, self)
+        
+        self.comboBoxLeftPump.currentTextChanged.connect(self.medicationChanged)
         self.switchViewDins()
 
-        self.comboBoxLeftPump.currentTextChanged.connect(self.medicationChanged)
 
     def switchViewDins(self):
         try:
@@ -101,3 +105,34 @@ class DinWindow(QWidget):
                         self.lblRightMedication.setText(row['medication'])
         except Exception as e:
             print(e)
+
+    def removeDinFromTable(self,table,din,row):
+        try:
+            module_dir = os.path.dirname(__file__)
+            reply = QMessageBox() #right qmessagebox
+            reply.setWindowIcon(QIcon(os.path.join(module_dir, 'images', 'medidoze-icon.ico')))
+            reply.setIcon(QMessageBox.Icon.Warning)
+            reply.setWindowTitle('Medidoze alert')
+            reply.setText("Do you want to remove this DIN?")
+            reply.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            reply.setDefaultButton(QMessageBox.StandardButton.No)
+            result = reply.exec()
+
+            if result == QMessageBox.StandardButton.Yes:
+                for i in range(table.rowCount()):
+                    if table.item(i, 0) and table.item(i, 0).text() == str(din):
+                        query = f"DELETE FROM din WHERE din_number = {din}"
+                        local_cursor = self.local_conn.cursor()
+                        local_cursor.execute(query)
+                        self.local_conn.commit()
+                        table.removeRow(i)
+                        self.infoViewDins.setText("DIN removed successfully")
+                        self.infoViewDins.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
+                        QTimer.singleShot(4000, self.clearinfoViewDins)
+                        break
+        except Exception as e:
+            print(e)
+
+    def clearinfoViewDins(self):
+        self.infoViewDins.setText("")
+        self.infoViewDins.setStyleSheet("background:none;padding:12px;")
