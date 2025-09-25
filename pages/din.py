@@ -50,13 +50,13 @@ class DinWindow(QWidget):
             table.setRowCount(row+1)
 
             col=0
-            table.setColumnWidth(col,250)
+            table.setColumnWidth(col,240)
             dinWid=QTableWidgetItem(str(din))
             dinWid.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             table.setItem(row,col,dinWid)
 
             col+=1
-            table.setColumnWidth(col,446)
+            table.setColumnWidth(col,436)
             drugWid=QTableWidgetItem(drugName)
             drugWid.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             table.setItem(row,col,drugWid)
@@ -69,7 +69,7 @@ class DinWindow(QWidget):
 
             col+=1
             btnRemoveDin = QPushButton("Remove")
-            btnRemoveDin.setStyleSheet("background-color:#fde5de;color:#f25022;margin:6px 80px 6px 0px;border-radius:6%")
+            btnRemoveDin.setStyleSheet("background-color:#fde5de;color:#f25022;margin:9px 80px 6px 0px;border-radius:6%;font-weight:400;font-size:10pt;padding:0px")
             btnRemoveDin.setFixedSize(160,40)
             btnRemoveDin.setCursor(Qt.CursorShape.PointingHandCursor)
             btnRemoveDin.clicked.connect(partial(self.removeDinFromTable,table,din,row))
