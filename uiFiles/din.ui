@@ -146,9 +146,9 @@ margin:0px 2px 0px 2px
                </property>
                <property name="styleSheet">
                 <string notr="true">#comboBoxLeftPump{
-background:#F4F7F9;
 padding:10px;
-border:none
+border:1px solid lightgrey;
+border-radius:10%
 }
 #comboBoxLeftPump::drop-down{
 image:url(:/icon/images/down_arrow.svg);
