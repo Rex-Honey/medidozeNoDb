@@ -3,8 +3,8 @@ from PyQt6.QtWidgets import QWidget, QLabel,QTableWidgetItem,QPushButton,QHBoxLa
 from PyQt6.QtGui import QFont, QIcon, QPixmap, QImage, QPainter, QPainterPath, QIntValidator
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6 import uic
-import os, pyodbc
-from otherFiles.common import dictfetchall,setState,medidozeDir
+import os
+from otherFiles.common import dictfetchall,medidozeDir
 from functools import partial
 import base64
 from datetime import datetime

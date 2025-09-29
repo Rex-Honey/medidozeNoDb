@@ -233,9 +233,7 @@ class AddUpdateUserWindow(QWidget):
             print(e)
 
     def cancelAndSwitch(self):
-        """Create a fresh instance of PharmacyUsersWindow and switch to it"""
         try:
-            # Create a new instance of PharmacyUsersWindow
             freshPharmacyUsers = PharmacyUsersWindow()
             
             # Find the parent stack widget
@@ -247,7 +245,6 @@ class AddUpdateUserWindow(QWidget):
                 parent = parent.parentWidget()
             
             if parent is not None:
-                # Create a new PageContainer with the fresh PharmacyUsersWindow
                 pageContainer = PageContainer("Pharmacy Users", freshPharmacyUsers)
                 
                 # Add the new PageContainer to the stack and switch to it
@@ -256,7 +253,7 @@ class AddUpdateUserWindow(QWidget):
             else:
                 print("Main stack not found!")
         except Exception as e:
-            print(f"Error creating fresh PharmacyUsersWindow: {e}")
+            print(f"Error creating fresh Pharmacy Users Window: {e}")
 
     def clearInfo(self):
         try:

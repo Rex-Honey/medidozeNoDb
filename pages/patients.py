@@ -95,7 +95,7 @@ class PatientsWindow(QWidget):
                 btn_edit = QPushButton()
                 btn_edit.setIcon(QIcon(self.edit_icon))
                 btn_edit.setCursor(Qt.CursorShape.PointingHandCursor)
-                # btn_edit.clicked.connect(partial(self.editPatient, row_data['id']))
+                btn_edit.clicked.connect(partial(self.openEditPatientPage, row_data))
                 layout = QHBoxLayout()
                 layout.addWidget(btn_edit)
                 layout.setContentsMargins(0,0,0,0)
@@ -133,12 +133,25 @@ class PatientsWindow(QWidget):
         except Exception as e:
             print(e)
     
-    def editPatient(self, patient_id):
-        """Handle edit patient button click"""
+    def openEditPatientPage(self, patientToEdit=None):
         try:
-            print(f"Edit patient with ID: {patient_id}")
+            print(f"Edit patient with ID: {patientToEdit['id']}")
             # TODO: Implement patient editing functionality
             # This could open an edit dialog or navigate to an edit page
+            from pages.updatePatient import UpdatePatientWindow
+            from pages.pageContainer import PageContainer
+            updatePatientWidget = UpdatePatientWindow(patientToEdit=patientToEdit)
+            updatePatientPage = PageContainer("Edit Patient", updatePatientWidget)
+            parent = self.parentWidget()
+            while parent is not None:
+                if hasattr(parent, "stack"):
+                    break
+                parent = parent.parentWidget()
+            if parent is not None:
+                parent.stack.addWidget(updatePatientPage)
+                parent.stack.setCurrentWidget(updatePatientPage)
+            else:
+                print("Main stack not found!")
         except Exception as e:
             print(f"Error editing patient: {e}")
         

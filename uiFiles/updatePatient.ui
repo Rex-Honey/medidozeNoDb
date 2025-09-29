@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>977</width>
+    <height>341</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="updatePatientFrame">
+     <property name="styleSheet">
+      <string notr="true">background:#ffffff;
+font-family:Nirmala UI;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_16" rowstretch="1,2,2,0,3" columnstretch="1,3">
+      <property name="leftMargin">
+       <number>15</number>
+      </property>
+      <property name="topMargin">
+       <number>15</number>
+      </property>
+      <property name="rightMargin">
+       <number>15</number>
+      </property>
+      <property name="bottomMargin">
+       <number>15</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>15</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>4</number>
+      </property>
+      <item row="3" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_29">
+        <property name="spacing">
+         <number>15</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item alignment="Qt::AlignRight">
+         <widget class="QPushButton" name="btnUpdate">
+          <property name="font">
+           <font>
+            <family>Nirmala UI</family>
+            <pointsize>10</pointsize>
+            <weight>87</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{
+background:#48C9E3;
+color:#FFFFFF;
+border-radius:10%;
+font-weight: 700;
+font-size:10pt;
+padding:10px 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Update</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item alignment="Qt::AlignLeft">
+         <widget class="QPushButton" name="btnCancel">
+          <property name="font">
+           <font>
+            <family>Nirmala UI</family>
+            <pointsize>10</pointsize>
+            <weight>87</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-size: 10pt;
+font-weight:700;
+border-radius:10%;
+padding:10px 30px;
+border:1px solid #e1e4e6;</string>
+          </property>
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_33">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="btnLoadImg">
+          <property name="font">
+           <font>
+            <family>Nirmala UI</family>
+            <pointsize>9</pointsize>
+            <weight>62</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-size: 9pt;
+font-weight: 500;
+border-radius:10%;
+padding:10px;
+border:1px solid #e1e4e6;
+</string>
+          </property>
+          <property name="text">
+           <string>Change Picture</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnRemoveImg">
+          <property name="font">
+           <font>
+            <family>Nirmala UI</family>
+            <pointsize>9</pointsize>
+            <weight>62</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-size: 9pt;
+font-weight: 500;
+border-radius:10%;
+padding:10px;
+border:1px solid #e1e4e6;
+</string>
+          </property>
+          <property name="text">
+           <string>Remove Picture</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="0" colspan="2" alignment="Qt::AlignRight|Qt::AlignBottom">
+       <widget class="QLabel" name="infoUpdatePatient">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="2">
+       <layout class="QVBoxLayout" name="verticalLayout_38">
+        <property name="topMargin">
+         <number>30</number>
+        </property>
+        <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+         <widget class="QLabel" name="lblPatientImg">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-radius:45%;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <layout class="QVBoxLayout" name="verticalLayout_34">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <property name="leftMargin">
+         <number>40</number>
+        </property>
+        <property name="topMargin">
+         <number>62</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_32" stretch="0,1,0,1">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_31">
+            <property name="styleSheet">
+             <string notr="true">font-size:12pt;
+font-weight:700;</string>
+            </property>
+            <property name="text">
+             <string>Name :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="patientName">
+            <property name="text">
+             <string>TextLabel </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_52">
+            <property name="styleSheet">
+             <string notr="true">font-size:12pt;
+font-weight:700;</string>
+            </property>
+            <property name="text">
+             <string>Phone :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="patientPhone">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_9">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
