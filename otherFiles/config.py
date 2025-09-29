@@ -3,6 +3,7 @@ config = None
 localConn = None
 liveConn = None
 userData = None
+pcbComPort = None
 
 def setLocalConfig(configData, localConnData):
     """Initialize global configuration"""
@@ -21,3 +22,12 @@ def updateUserData(newUserData):
     global userData
     userData = newUserData
     print(f"User data updated: {userData}")
+
+def updatePcbComPort(pcbComPortData):
+    """Update PCB com port"""
+    try:
+        global pcbComPort
+        pcbComPort = pcbComPortData["device"]
+        print(f"PCB com port updated: {pcbComPort}")
+    except Exception as e:
+        print(f"Error updating PCB com port: {e}")
