@@ -17,7 +17,7 @@ class PatientsWindow(QWidget):
             return
         self.config = config
         self.userData = userData
-        self.local_conn = localConn
+        self.localConn = localConn
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "patients.ui")
         uic.loadUi(ui_path, self)
@@ -26,10 +26,10 @@ class PatientsWindow(QWidget):
         self.edit_icon = os.path.join(rootDir, 'images', 'edit_icon.svg')
 
 
+        self.txtSearchPatient.textChanged.connect(self.fetchPatients)
         # self.btnLoadImgPatient.clicked.connect(self.loadImagePatient)
         # self.btnRemoveImgPatient.clicked.connect(self.removeImagePatient)
         # self.btnUpdatePatient.clicked.connect(self.updatePatient)
-        # self.txtSearchPatient.keyPressEvent = self.searchPatient
         # self.btn_cancel_patient.clicked.connect(self.switchViewPatient)
         self.fetchPatients()
 
@@ -107,50 +107,28 @@ class PatientsWindow(QWidget):
 
         except Exception as e:
             print(e)
-
-    def searchPatient(self,event): # created because of key press event
-        try:
-            print("SEARCH PATIENT")
-            QLineEdit.keyPressEvent(self.txtSearchPatient, event)
-            findPatient=str(self.txtSearchPatient.text()).strip()
-            local_cursor = self.local_conn.cursor()
-            baseQuery= f"SELECT * FROM patient"
-
-            if "," in findPatient:
-                findPatient=findPatient.split(",")
-                firstName=str(findPatient[1]).strip()
-                lastName=str(findPatient[0]).strip()
-                print(findPatient)
-                condition=f" where patient.firstName LIKE '%{firstName}%' AND patient.lastName LIKE '%{lastName}%'"
-            else:
-                condition=f" where (patient.firstName LIKE '%{findPatient}%' OR patient.lastName LIKE '%{findPatient}%' OR patient.id LIKE '%{findPatient}%' OR patient.phone LIKE '%{findPatient}%' )"
-            query=baseQuery+condition      
-
-            local_cursor.execute(query)
-            data=dictfetchall(local_cursor)
-            self.addDataToPatientTable(data)
-        except Exception as e:
-            print(e)
     
     def fetchPatients(self):
         try:
             baseQuery = "SELECT * FROM patient"
             searchText = self.txtSearchPatient.text().strip()
-            if ',' in searchText:
-                searchText=searchText.split(',')
-                firstName=str(searchText[1]).strip()
-                lastName=str(searchText[0]).strip()
-                condition=f" where patient.firstName LIKE ? AND patient.lastName LIKE ?"
-            else:
-                condition=f" where (patient.firstName LIKE ? OR patient.lastName LIKE ? OR patient.id LIKE ? OR patient.phone LIKE ? )"
+            localCursor = self.localConn.cursor()
             if searchText:
+                if ',' in searchText:
+                    searchText=searchText.split(',')
+                    firstName=str(searchText[1]).strip()
+                    lastName=str(searchText[0]).strip()
+                    condition=f" where patient.firstName LIKE ? AND patient.lastName LIKE ?"
+                    params=(f"%{firstName}%", f"%{lastName}%")
+                else:
+                    condition=f" where (patient.firstName LIKE ? OR patient.lastName LIKE ? OR patient.id LIKE ? OR patient.phone LIKE ? )"
+                    params=(f"%{searchText}%", f"%{searchText}%", f"%{searchText}%", f"%{searchText}%")
                 baseQuery += condition
-                local_cursor.execute(baseQuery, (f"%{searchText}%", f"%{searchText}%", f"%{searchText}%"))
+                localCursor.execute(baseQuery, params)
             else:
-                local_cursor.execute(baseQuery)
-            local_cursor = self.local_conn.cursor()
-            local_cursor.execute("SELECT * FROM patient")
-            data=dictfetchall(local_cursor)
+                localCursor.execute(baseQuery)
+            
+            data=dictfetchall(localCursor)
             self.addDataToPatientTable(data)
         except Exception as e:
             print(e)
