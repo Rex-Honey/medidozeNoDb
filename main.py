@@ -13,6 +13,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
+
         module_dir = os.path.dirname(__file__)
         self.setWindowTitle("Medidoze Technologies Inc.")
         self.setWindowIcon(QIcon(os.path.join(module_dir, 'images', 'medidoze-icon.ico')))
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
 
         self.documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        self.config = None
         self.checkConfig()
 
     def checkConfig(self):
@@ -52,10 +54,6 @@ class MainWindow(QMainWindow):
 
             self.updateServerConfig(config, localConnString)
 
-            self.signInWindow = SignInWindow()
-            self.signInWindow.loginSuccess.connect(self.loginSuccess)
-            self.stackLayout.addWidget(self.signInWindow)
-            self.stackLayout.setCurrentWidget(self.signInWindow)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
@@ -73,6 +71,10 @@ class MainWindow(QMainWindow):
         localConn = pyodbc.connect(localConnString)
         setLocalConfig(config, localConn)
         self.config = config
+        self.signInWindow = SignInWindow()
+        self.signInWindow.loginSuccess.connect(self.loginSuccess)
+        self.stackLayout.addWidget(self.signInWindow)
+        self.stackLayout.setCurrentWidget(self.signInWindow)
 
     def loginSuccess(self, userData):
         # Check if user can login based on role and WinRx configuration

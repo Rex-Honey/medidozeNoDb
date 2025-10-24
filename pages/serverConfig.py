@@ -45,7 +45,7 @@ class ServerConfigWindow(QWidget):
             serverName=self.txtServerName.text()
             username=self.txtUsername.text()
             password=self.txtPassword.text()
-            localDatabase="medidozeSyncMedAI"
+            localDatabase="medidozeAI"
 
             # serverIP="192.168.29.151"
             # serverPort="1433"
