@@ -137,7 +137,7 @@ class DispenseWindow(QWidget):
 
             self.tableDispense.show()
             self.lblDB.hide()
-            # self.addDataToDispense(finalData)
+            self.addDataToDispense(finalData)
 
             for i in range(12, self.tableDispense.columnCount()):
                 self.tableDispense.setColumnHidden(i, True)
@@ -147,3 +147,209 @@ class DispenseWindow(QWidget):
 
         except Exception as e:
             print(f"Error in fetch Dispense Data: {e}")
+
+    def addDataToDispense(self, data):
+        try:
+            data_len=len(data)
+            self.tableDispense.setRowCount(data_len)
+            self.infoViewDispense.hide()
+            if self.labelType=="normal":
+                printFunction=self.generateNormalLabel
+            else:
+                printFunction=self.generateInvertedLabel
+            if data:
+                print()
+                for row,row_data in enumerate(data):
+                    print("adding rx to table",row_data['rxID'])
+                    # if row_data['rxID']==28052:
+                    #     print("stop")
+                    if row_data['reReason']:
+                        continue
+                    if row_data['isChanging']=='Y':
+                        ChangingDoseColor = QColor("blue")
+                    else:
+                        ChangingDoseColor = QColor("black")
+                    col=0
+                    rxID=QTableWidgetItem(" "+str(row_data['rxID']))
+                    if row_data['emergencyCount']>0:
+                        rxID.setForeground(QBrush(QColor("red")))
+                    self.tableDispense.setItem(row,col,rxID)
+                    self.tableDispense.setColumnWidth(col, 60)
+
+                    col=1
+                    route=QTableWidgetItem(row_data['route'])
+                    self.tableDispense.setItem(row,col,route)
+                    self.tableDispense.setColumnWidth(col, 40)
+
+                    col+=1
+                    patient_name=QTableWidgetItem(row_data['lastName']+" "+row_data['firstName'])
+                    self.tableDispense.setItem(row,col,patient_name)
+                    self.tableDispense.setColumnWidth(col, 180)
+
+                    col+=1
+                    phn=QTableWidgetItem(str(row_data['patientID']))
+                    phn.setForeground(QBrush(ChangingDoseColor))
+                    self.tableDispense.setItem(row,col,phn)
+                    self.tableDispense.setColumnWidth(col, 90)
+
+                    col+=1
+                    phone=QTableWidgetItem(str(row_data['areaCode'])+str(row_data['phone']))
+                    self.tableDispense.setItem(row,col,phone)
+                    self.tableDispense.setColumnWidth(col, 90)
+
+                    col+=1
+                    drug=QTableWidgetItem(row_data['rxDrug'])
+                    self.tableDispense.setItem(row,col,drug)
+                    self.tableDispense.setColumnWidth(col, 210)
+
+                    col+=1
+                    witness=row_data['witness']
+                    if witness==int(witness):
+                        witness=int(witness)
+                    else:
+                        witness=round(witness,1)
+                    witnessLbl=QTableWidgetItem(str(witness)+"ml")
+                    self.tableDispense.setItem(row,col,witnessLbl)
+                    self.tableDispense.setColumnWidth(col, 60)
+
+                    col+=1
+                    carryStr=row_data['carry']
+                    if "," in carryStr:
+                        carryArr=carryStr.split(",")
+                        carry=0
+                        for i in carryArr:
+                            carryVal=float(i)
+                            if carryVal==int(carryVal):
+                                carryVal=int(carryVal)
+                            carry=carry+carryVal
+                    else:
+                        carry=float(carryStr)
+                    if carry==int(carry):
+                        carry=int(carry)
+                    else:
+                        carry=round(carry,1)
+                    if carry:
+                        carryLbl=QTableWidgetItem(str(carry)+"ml")
+                    else:
+                        carryLbl=QTableWidgetItem(str(carry))
+                    self.tableDispense.setItem(row,col,carryLbl)
+                    self.tableDispense.setColumnWidth(col, 50)
+                    
+                    col+=1
+                    frequency=QTableWidgetItem(row_data['frequency'])
+                    self.tableDispense.setItem(row,col,frequency)
+                    self.tableDispense.setColumnWidth(col, 40)
+
+                    if row_data['frequency'] !="OD":
+                        totalCarry=carryStr.split(",")
+                        copies=len(totalCarry)+1
+                    else:
+                        copies=int(carry/witness)+1
+
+                    col+=1
+                    btnPrint = QPushButton()
+                    btnPrint.setIcon(QIcon(self.iconPrint))
+                    btnPrint.setStyleSheet("background-color:transparent;")
+                    btnPrint.setCursor(Qt.CursorShape.PointingHandCursor)
+                    btnPrint.clicked.connect(partial(printFunction,row_data,copies))
+                    self.tableDispense.setCellWidget(row,col,btnPrint)
+                    self.tableDispense.setColumnWidth(col, 50)
+                    
+                    col+=1
+                    allRefillsFilledForDay = True
+                    date=row_data['reefDate']
+                    totDays=int(carry/witness)+1
+                    for _ in range(totDays):
+                        reefDate = date.strftime('%Y-%m-%d %H:%M:%S')
+                        local_cursor = self.local_conn.cursor()
+                        local_cursor.execute(f"SELECT COUNT(*) FROM dispenseLogs WHERE dlRxID={row_data['rxID']} AND CONVERT(date,dlReefDate) = '{reefDate}'")
+                        count = local_cursor.fetchone()[0]
+                        if count > 0:
+                            pass
+                        else:
+                            allRefillsFilledForDay=False
+                            break
+                        date+=timedelta(days=1)
+                    btnFill = QPushButton("Fill Now")
+                    btnFillAndPrint = QPushButton("Fill + Print")
+                    btnFill.setStyleSheet("margin:3px;background:#FFFFFF;color:#48C9E3;border:1px solid #48C9E3;border-radius:6%;font-weight:700")
+                    btnFill.setCursor(Qt.CursorShape.PointingHandCursor)
+
+                    btnFillAndPrint.setStyleSheet("margin:3px;background:#FFFFFF;color:#48C9E3;border:1px solid #48C9E3;border-radius:6%;font-weight:700")
+                    btnFillAndPrint.setCursor(Qt.CursorShape.PointingHandCursor)
+                    if allRefillsFilledForDay:
+                        btnFill.setText("Refill")
+                        btnFill.setStyleSheet("margin:3px;background:#48C9E3;color:#FFFFFF;border:1px solid #48C9E3;border-radius:6%;font-weight:700")
+
+                        # btnFill.setStyleSheet("margin:3px;border:1px solid green;color:green;border-radius:6%;")
+                        # btnFill.setIcon(QIcon(self.iconCheck))
+
+                        btnFillAndPrint.setStyleSheet("margin:3px;background:#48C9E3;color:#FFFFFF;border:1px solid #48C9E3;border-radius:6%;font-weight:700")
+                        # btnFillAndPrint.setStyleSheet("margin:3px;border:1px solid green;color:green;border-radius:6%;")
+                        # btnFillAndPrint.setIcon(QIcon(self.iconCheck))
+                    btnFill.clicked.connect(partial(self.fillDrugPopup, row_data,btnFill,btnFillAndPrint))
+                    btnFillAndPrint.clicked.connect(partial(self.fillAndPrint, row_data,btnFill,btnFillAndPrint,copies))
+
+                    btnFill.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+                    self.tableDispense.setCellWidget(row,col,btnFill)
+                    self.tableDispense.setColumnWidth(col, 70)
+                    
+                    col+=1
+                    btnFillAndPrint.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+                    self.tableDispense.setCellWidget(row,col,btnFillAndPrint)
+                    
+                    # hidden columns =========================================================
+                    col+=1
+                    rxType=QTableWidgetItem(row_data['rxType'])
+                    self.tableDispense.setItem(row,col,rxType)
+                    col+=1
+                    rxId=QTableWidgetItem(str(row_data['rxID']))
+                    self.tableDispense.setItem(row,col,rxId)
+                    col+=1
+                    if row_data['rxOrigDate']:
+                        formattedOrigDate = row_data['rxOrigDate'].strftime('%Y-%m-%d %H:%M:%S')
+                        origDate=QTableWidgetItem(formattedOrigDate)
+                        self.tableDispense.setItem(row,col,origDate)
+                    else:
+                        self.tableDispense.setItem(row,col,QTableWidgetItem(""))
+                    col+=1
+                    if row_data['rxStopDate']:
+                        formattedStopDate = row_data['rxStopDate'].strftime('%Y-%m-%d %H:%M:%S')
+                        stopDate=QTableWidgetItem(formattedStopDate)
+                        self.tableDispense.setItem(row,col,stopDate)
+                    else:
+                        self.tableDispense.setItem(row,col,QTableWidgetItem(""))
+                    col+=1
+                    totDays=QTableWidgetItem(str(row_data['rxDays']))
+                    self.tableDispense.setItem(row,col,totDays)
+                    col+=1
+                    totQty=QTableWidgetItem(str(row_data['rxQty']))
+                    self.tableDispense.setItem(row,col,totQty)
+                    col+=1
+                    rxSig=QTableWidgetItem(row_data['rxSig'])
+                    self.tableDispense.setItem(row,col,rxSig)
+                    col+=1
+                    totRemaining=QTableWidgetItem(str(row_data['totRemaining']))
+                    self.tableDispense.setItem(row,col,totRemaining)
+                    col+=1
+                    prevDate=QTableWidgetItem(str(row_data['prevDate']))
+                    self.tableDispense.setItem(row,col,prevDate)
+                    col+=1
+                    scDays=QTableWidgetItem(str(row_data['scDays']))
+                    self.tableDispense.setItem(row,col,scDays)
+                    col+=1
+                    emergencyCount=QTableWidgetItem(str(row_data['emergencyCount']))
+                    self.tableDispense.setItem(row,col,emergencyCount)
+                    col+=1
+                    gender=QTableWidgetItem(row_data['gender'])
+                    self.tableDispense.setItem(row,col,gender)
+                    col+=1
+                    scheduleType=QTableWidgetItem(row_data['scheduleType'])
+                    self.tableDispense.setItem(row,col,scheduleType)
+                    col+=1
+                    carryEnabled=QTableWidgetItem(row_data['carryEnabled'])
+                    self.tableDispense.setItem(row,col,carryEnabled)
+                    col+=1
+                print("all Rx added")
+        except Exception as e:
+            print(e)
