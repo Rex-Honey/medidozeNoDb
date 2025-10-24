@@ -38,7 +38,8 @@ top:-4px;
 margin:0px 2px 0px 2px
 }
 QLabel{
-font-size:10pt
+font-size:10pt;
+background:#ffffff;
 }
 QDateEdit{
 padding:8px;
