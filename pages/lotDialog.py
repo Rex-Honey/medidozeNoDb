@@ -16,8 +16,8 @@ class LotDialog(QDialog):
         self.config = config
         self.userData = userData
         self.localConn = localConn
-        module_dir = os.path.dirname(__file__)
-        uic.loadUi(os.path.join(module_dir, 'uiFiles', 'lotDialog.ui'), self)
+        root_dir = os.path.dirname(os.path.dirname(__file__))
+        uic.loadUi(os.path.join(root_dir, 'uiFiles', 'lotDialog.ui'), self)
         self.infoMsgMetadol.setText("")
         self.infoMsgMethadose.setText("")
         self.loginUser=self.userData['uid']
