@@ -29,11 +29,6 @@ class MainWindow(QMainWindow):
         self.documentsDir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
         self.checkConfig()
 
-        self.signInWindow = SignInWindow()
-        self.signInWindow.loginSuccess.connect(self.loginSuccess)
-        self.stackLayout.addWidget(self.signInWindow)
-        self.stackLayout.setCurrentWidget(self.signInWindow)
-
     def checkConfig(self):
         try:
             with open(os.path.join(self.documentsDir, 'medidoze', 'configAI.json'), 'r', encoding='utf-8') as f:
@@ -56,6 +51,11 @@ class MainWindow(QMainWindow):
                 updateLiveConn(liveConn)
 
             self.updateServerConfig(config, localConnString)
+
+            self.signInWindow = SignInWindow()
+            self.signInWindow.loginSuccess.connect(self.loginSuccess)
+            self.stackLayout.addWidget(self.signInWindow)
+            self.stackLayout.setCurrentWidget(self.signInWindow)
         except FileNotFoundError:
             print("No JSON config file found.")
             self.serverConfigWindow = ServerConfigWindow()
