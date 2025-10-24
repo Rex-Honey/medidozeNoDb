@@ -1,7 +1,9 @@
 # pages/settings_page.py
 from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import Qt
 from PyQt6 import uic
 import os, pyodbc
+from .lotDialog import LotDialog
 
 class DispenseWindow(QWidget):
     def __init__(self):
@@ -16,6 +18,9 @@ class DispenseWindow(QWidget):
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "dispense.ui")
         uic.loadUi(ui_path, self)
+
+        self.lotDialog=LotDialog()
+        self.lotDialog.show()
 
         # self.btnExport.clicked.connect(self.exportDataToExcel)
 
