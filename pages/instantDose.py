@@ -5,6 +5,8 @@ from PyQt6.QtCore import QTimer, QThread, pyqtSignal
 from functools import partial
 import os, re
 from datetime import datetime
+import serial.tools.list_ports
+import serial.tools,time
 
 class InstantDoseWindow(QWidget):
     def __init__(self):
@@ -39,6 +41,10 @@ class InstantDoseWindow(QWidget):
         self.txtDoseLeft.returnPressed.connect(partial(self.fillInstantDose,triggerBy="LeftPumpBtn"))
         self.btnFillRight.clicked.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
         self.txtDoseRight.returnPressed.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
+
+        self.worker = Worker()
+        self.workerThread = QThread()
+        self.worker.moveToThread(self.workerThread)
     
     def setState(self,widget, state):
         widget.setProperty("ok2", state == "ok")
@@ -61,9 +67,9 @@ class InstantDoseWindow(QWidget):
             QTimer.singleShot(4000, self.clear_info_messages)
             self.progressBarLeft.setRange(0, 100)  # Reset progress bar
             self.progressBarRight.setRange(0, 100)  # Reset progress bar
-            self.worker_thread.quit()
-            self.worker_thread.wait()
-            self.worker_thread.disconnect()
+            self.workerThread.quit()
+            self.workerThread.wait()
+            self.workerThread.disconnect()
             print("Response Done")
         except Exception as e:
             print(e)
@@ -144,7 +150,7 @@ class InstantDoseWindow(QWidget):
             progressBar.setRange(0, 0)
             self.worker.count=0
             self.workerThread.start()
-            self.workerThread.started.connect(partial(self.worker.fillInstantDoseWorker,self.localConn,command,dose,medicationID,lotDetails,self.loginUser))
+            self.workerThread.started.connect(partial(self.worker.fillInstantDoseWorker,self.localConn,command,dose,medicationID,lotDetails,self.userData['uid']))
         except Exception as e:
             print(e)
 
@@ -153,14 +159,45 @@ class Worker(QThread):
     def __init__(self):
         super().__init__()
         self.count = 0
+        from otherFiles.config import pcbComPort
+        self.pcbComPort = pcbComPort
+    def sendPcbCommand(self,command):
+        try:
+            print(command)
+            baudrate=115200
+            command += '\n'
+            ser = serial.Serial(self.pcbComPort,baudrate, timeout=4)
+            ser.write(command.encode())
+            time.sleep(0.1)
+            # lastMsg=""
+            count=1
+            while True:
+                response = ser.readline().decode()
+                print(f"send_pcb_command response {count} -- ",response)
+                if "pump - single" in response:
+                    pumpType="Single"
+                    print("Single pump connected")
+                if response in ("Press Y for yes and N for no then press Enter\r\n", "put quantity for calibration in ml\r\n","enter Y for yes and N for no\r\n","Machine is Ready to despense\r\n","wrong input. pls put clb qunatity in numaric format"):
+                    # ser.close()
+                    print("Serial port closed end of commands")
+                    break
+                elif response=="":
+                    # ser.close()
+                    print("Serial port closed blank response")
+                    break
+                count+=1
+            return "Success"
+        except Exception as e:
+            print("send_pcb_command error",e)
+            return e
 
-    def instantFillDoseWorker(self,localConn,command,dose,medicationID,lotDetails,loginUser):
+    def fillInstantDoseWorker(self,localConn,command,dose,medicationID,lotDetails,loginUser):
         try:
             print(" -- instant Fill Dose Worker --")
             self.count+=1
             if self.count>1:
                 return
-            machineResponse=self.send_pcb_command(command)
+            machineResponse=self.sendPcbCommand(command)
             if machineResponse == "Success":
                 local_cursor = localConn.cursor()
                 if lotDetails:
@@ -181,4 +218,5 @@ class Worker(QThread):
             else:
                 self.instantFill.emit('error',str(machineResponse))
         except Exception as e:
+            print(e)
             self.instantFill.emit('error',str(e))
