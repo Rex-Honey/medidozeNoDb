@@ -54,13 +54,12 @@ ERROR_KEYWORDS = {
 class InstantDoseWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, userData, localConn
-        if config is None or localConn is None:
-            print("Configuration not properly initialized. Please restart the application.")
-            return
+        from otherFiles.config import config, userData, localConn, leftPump, rightPump
         self.config = config
         self.userData = userData
         self.localConn = localConn
+        self.leftPump = leftPump
+        self.rightPump = rightPump
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "instantDose.ui")
         uic.loadUi(ui_path, self)
@@ -69,12 +68,8 @@ class InstantDoseWindow(QWidget):
         self.floatValidator.setRange(1, 999.99, 2)
         self.floatValidator.setNotation(QDoubleValidator.Notation.StandardNotation)
 
-        localCursor = self.localConn.cursor()
-        localCursor.execute("SELECT pump_position, medication from din_groups")
-        pumpMedicationDict = {row[0]: row[1] for row in localCursor.fetchall()}
-        if pumpMedicationDict:
-            self.drugNameLeftInstantDose.setText(pumpMedicationDict['Left'])
-            self.drugNameRightInstantDose.setText(pumpMedicationDict['Right'])
+        self.drugNameLeftInstantDose.setText(self.leftPump)
+        self.drugNameRightInstantDose.setText(self.rightPump)
 
         self.pumpContext = {
             "LeftPumpBtn": PumpContext(

@@ -5,7 +5,7 @@ import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 from pages.mainApp import MainAppWindow
-from otherFiles.config import setLocalConfig, updateLiveConn
+from otherFiles.config import setLocalConfig, updateLiveConn, updateLeftPump, updateRightPump
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -43,6 +43,12 @@ class MainWindow(QMainWindow):
                 f"PWD={config['password']};"
             )
             localConn = pyodbc.connect(localConnString)
+            localCursor = localConn.cursor()
+            localCursor.execute("SELECT pump_position, medication from din_groups")
+            pumpMedicationDict = {row[0]: row[1] for row in localCursor.fetchall()}
+            if pumpMedicationDict:
+                updateLeftPump(pumpMedicationDict['Left'])
+                updateRightPump(pumpMedicationDict['Right'])
             print("Local connection successful!")
             localConn.close()
 
