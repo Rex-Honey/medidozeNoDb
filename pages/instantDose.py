@@ -1,12 +1,28 @@
 # pages/settings_page.py
 from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
-from PyQt6.QtCore import QTimer, QThread, pyqtSignal
+from PyQt6.QtCore import QObject, QTimer, QThread, pyqtSignal
 from functools import partial
-import os, re
+from dataclasses import dataclass
+import os
+import re
 from datetime import datetime
-import serial.tools.list_ports
-import serial.tools,time
+from typing import Any, Optional
+import serial
+import time
+
+
+@dataclass
+class PumpContext:
+    inputField: Any
+    errorLabel: Any
+    progressBar: Any
+    pumpPosition: str
+    commandTemplate: str
+    blankError: str = "Quantity can't be blank"
+
+
+QUANTITY_PATTERN = re.compile(r"^\d+(\.\d{1,2})?$")
 
 class InstantDoseWindow(QWidget):
     def __init__(self):
@@ -29,13 +45,26 @@ class InstantDoseWindow(QWidget):
             self.drugNameLeftInstantDose.setText(pumpMedicationDict['Left'])
             self.drugNameRightInstantDose.setText(pumpMedicationDict['Right'])
 
-        self.fields=[(self.txtDoseLeft,self.errDoseLeft,"Quantity can't be blank"),
-                     (self.txtDoseRight,self.errDoseRight,"Quantity can't be blank"),
-                    ]
-        
-        for field,errLabel,errMsg in self.fields:
-            self.setState(field, "ok")
-            errLabel.setText("")
+        self.pumpContext = {
+            "LeftPumpBtn": PumpContext(
+                inputField=self.txtDoseLeft,
+                errorLabel=self.errDoseLeft,
+                progressBar=self.progressBarLeft,
+                pumpPosition="Left",
+                commandTemplate="dispense_pump_a {dose}ml",
+            ),
+            "RightPumpBtn": PumpContext(
+                inputField=self.txtDoseRight,
+                errorLabel=self.errDoseRight,
+                progressBar=self.progressBarRight,
+                pumpPosition="Right",
+                commandTemplate="dispense_pump_b {dose}ml",
+            ),
+        }
+
+        self.fields = [(ctx.inputField, ctx.errorLabel) for ctx in self.pumpContext.values()]
+
+        self._resetFieldStates()
 
         self.btnFillLeft.clicked.connect(partial(self.fillInstantDose,triggerBy="LeftPumpBtn"))
         self.txtDoseLeft.returnPressed.connect(partial(self.fillInstantDose,triggerBy="LeftPumpBtn"))
@@ -43,9 +72,19 @@ class InstantDoseWindow(QWidget):
         self.txtDoseRight.returnPressed.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
 
         self.worker = Worker()
+        self.worker.instantFill.connect(self.responseInstantFill)
         self.workerThread = QThread()
         self.worker.moveToThread(self.workerThread)
-    
+
+    def _resetFieldStates(self):
+        for inputField, errLabel in self.fields:
+            self.setState(inputField, "ok")
+            errLabel.setText("")
+
+    def _setButtonsEnabled(self, enabled: bool):
+        self.btnFillLeft.setEnabled(enabled)
+        self.btnFillRight.setEnabled(enabled)
+
     def setState(self,widget, state):
         widget.setProperty("ok2", state == "ok")
         widget.setProperty("error2", state == "err")
@@ -64,97 +103,135 @@ class InstantDoseWindow(QWidget):
             else:
                 self.infoInstantFill.setText("Filling Done")
                 self.infoInstantFill.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
-            QTimer.singleShot(4000, self.clear_info_messages)
+            QTimer.singleShot(4000, self.clearInfoMessages)
             self.progressBarLeft.setRange(0, 100)  # Reset progress bar
             self.progressBarRight.setRange(0, 100)  # Reset progress bar
+            self._setButtonsEnabled(True)
             self.workerThread.quit()
             self.workerThread.wait()
             self.workerThread.disconnect()
             print("Response Done")
         except Exception as e:
             print(e)
+            self._setButtonsEnabled(True)
 
     def fillInstantDose(self,triggerBy=None):
         try:
-            for field,errLabel,errMsg in self.fields:
-                self.setState(field, "ok")
-                errLabel.setText("")
+            context = self.pumpContext.get(triggerBy)
+            if context is None:
+                print(f"Unknown trigger {triggerBy}")
+                return
 
-            if triggerBy == 'LeftPumpBtn':
-                dose=self.txtDoseLeft.text()
+            self._resetFieldStates()
 
-                if str(dose).strip() =="":
-                    self.errDoseLeft.setText("Quantity can't be blank ")
-                    self.setState(self.txtDoseLeft, "err")
-                    return
-                
-                try:
-                    dose=int(self.txtDoseLeft.text())
-                except ValueError:
-                    try:
-                        dose=float(self.txtDoseLeft.text())
-                        pattern = r'^-?\d+(\.\d{1,2})?$'
-                        if not re.match(pattern, self.txtDoseLeft.text()):
-                            self.errDoseLeft.setText("Only 2 digit after decimal are allowed")
-                            self.setState(self.txtDoseLeft, "err")
-                            return
-                    except ValueError:
-                        self.errDoseLeft.setText("Only numbers are allowed in quantity")
-                        self.setState(self.txtDoseLeft, "err")
-                        return
-            else:
-                dose=self.txtDoseRight.text()
-                if str(dose).strip() =="":
-                    self.errDoseRight.setText("Quantity can't be blank ")
-                    self.setState(self.txtDoseRight, "err")
-                    return
-                
-                try:
-                    dose=int(self.txtDoseRight.text())
-                except ValueError:
-                    try:
-                        dose=float(self.txtDoseRight.text())
-                        pattern = r'^-?\d+(\.\d{1,2})?$'
-                        if not re.match(pattern, self.txtDoseRight.text()):
-                            self.errDoseRight.setText("Only 2 digit after decimal are allowed")
-                            self.setState(self.txtDoseRight, "err")
-                            return
-                    except ValueError:
-                        self.errDoseRight.setText("Only numbers are allowed in quantity")
-                        self.setState(self.txtDoseRight, "err")
-                        return
+            dose = self._parseDose(context)
+            if dose is None:
+                return
 
             localCursor = self.localConn.cursor()
-            if triggerBy == 'LeftPumpBtn':
-                localCursor.execute(f"SELECT id from din_groups where pump_position='Left';")
-                command=f"dispense_pump_a {dose}ml"
-                progressBar=self.progressBarLeft
-            else:
-                localCursor.execute(f"SELECT id from din_groups where pump_position='Right';")
-                command=f"dispense_pump_b {dose}ml"
-                progressBar=self.progressBarRight
-            medicationID = localCursor.fetchone()[0]
-            localCursor.execute("SELECT lotNo, quantityRemaining FROM stock WHERE dinGroupID=? AND createdAt=(SELECT MAX(createdAt) FROM stock WHERE dinGroupID=?)", (medicationID,medicationID))
-            lotDetails=localCursor.fetchone()
-            if lotDetails:
-                lotDetails={'lotNo':lotDetails[0],'quantityRemaining':lotDetails[1]}
-                if lotDetails['quantityRemaining']<dose:
-                    if triggerBy == 'LeftPumpBtn':
-                        self.errDoseLeft.setText(f"Unable to dispense. Only {lotDetails['quantityRemaining']}ml left")
-                        self.setState(self.txtDoseLeft, "err")
-                    else:
-                        self.errDoseRight.setText(f"Unable to dispense. Only {lotDetails['quantityRemaining']}ml left")
-                        self.setState(self.txtDoseRight, "err")
-                    return
-            
-            progressBar.setRange(0, 0)
+            medicationID = self._fetchMedicationId(localCursor, context)
+            if medicationID is None:
+                context.errorLabel.setText("Pump configuration missing")
+                self.setState(context.inputField, "err")
+                return
+
+            lotDetails = self._fetchLotDetails(localCursor, medicationID)
+            if (
+                lotDetails
+                and lotDetails['quantityRemaining'] is not None
+                and lotDetails['quantityRemaining'] < dose
+            ):
+                context.errorLabel.setText(
+                    f"Unable to dispense. Only {lotDetails['quantityRemaining']}ml left"
+                )
+                self.setState(context.inputField, "err")
+                return
+
+            if self.workerThread.isRunning():
+                print("Worker thread is already running. Ignoring new request.")
+                return
+            self._setButtonsEnabled(False)
+            context.progressBar.setRange(0, 0)
             self.worker.count=0
+            command = context.commandTemplate.format(dose=dose)
+
+            job = partial(
+                self.worker.fillInstantDoseWorker,
+                self.localConn,
+                command,
+                dose,
+                medicationID,
+                lotDetails,
+                self.userData['uid'],
+            )
+
+            self.workerThread.started.connect(job)
             self.workerThread.start()
-            self.workerThread.started.connect(partial(self.worker.fillInstantDoseWorker,self.localConn,command,dose,medicationID,lotDetails,self.userData['uid']))
         except Exception as e:
             print(e)
 
-class Worker(QThread):
+    def _parseDose(self, context: PumpContext) -> Optional[float]:
+        rawValue = context.inputField.text().strip()
+        if rawValue == "":
+            context.errorLabel.setText(context.blankError + " ")
+            self.setState(context.inputField, "err")
+            return None
+
+        try:
+            dose = int(rawValue)
+            return float(dose)
+        except ValueError:
+            try:
+                dose = float(rawValue)
+            except ValueError:
+                context.errorLabel.setText("Only numbers are allowed in quantity")
+                self.setState(context.inputField, "err")
+                return None
+
+        if not QUANTITY_PATTERN.match(rawValue):
+            context.errorLabel.setText("Only 2 digit after decimal are allowed")
+            self.setState(context.inputField, "err")
+            return None
+
+        return dose
+
+    def _fetchMedicationId(self, cursor, context: PumpContext) -> Optional[int]:
+        cursor.execute(
+            "SELECT id FROM din_groups WHERE pump_position=?;",
+            (context.pumpPosition,)
+        )
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+    def _fetchLotDetails(self, cursor, medicationId: int) -> Optional[dict]:
+        cursor.execute(
+            "SELECT lotNo, quantityRemaining FROM stock "
+            "WHERE dinGroupID=? AND createdAt=("
+            "SELECT MAX(createdAt) FROM stock WHERE dinGroupID=?)",
+            (medicationId, medicationId),
+        )
+        lotDetails = cursor.fetchone()
+        if lotDetails:
+            lotNo, quantityRemaining = lotDetails
+            try:
+                numericQuantity = float(quantityRemaining)
+            except (TypeError, ValueError):
+                numericQuantity = None
+            return {
+                "lotNo": lotNo,
+                "quantityRemaining": numericQuantity,
+                "rawQuantityRemaining": quantityRemaining,
+            }
+        return None
+    
+    def clearInfoMessages(self):
+        try:
+            self.infoInstantFill.setText("")
+            self.infoInstantFill.setStyleSheet("background:none")
+        except Exception as e:
+            print(e)
+
+class Worker(QObject):
     instantFill=pyqtSignal(str,str)
     def __init__(self):
         super().__init__()
@@ -166,26 +243,22 @@ class Worker(QThread):
             print(command)
             baudrate=115200
             command += '\n'
-            ser = serial.Serial(self.pcbComPort,baudrate, timeout=4)
-            ser.write(command.encode())
-            time.sleep(0.1)
-            # lastMsg=""
-            count=1
-            while True:
-                response = ser.readline().decode()
-                print(f"send_pcb_command response {count} -- ",response)
-                if "pump - single" in response:
-                    pumpType="Single"
-                    print("Single pump connected")
-                if response in ("Press Y for yes and N for no then press Enter\r\n", "put quantity for calibration in ml\r\n","enter Y for yes and N for no\r\n","Machine is Ready to despense\r\n","wrong input. pls put clb qunatity in numaric format"):
-                    # ser.close()
-                    print("Serial port closed end of commands")
-                    break
-                elif response=="":
-                    # ser.close()
-                    print("Serial port closed blank response")
-                    break
-                count+=1
+            with serial.Serial(self.pcbComPort,baudrate, timeout=4) as ser:
+                ser.write(command.encode())
+                time.sleep(0.1)
+                count=1
+                while True:
+                    response = ser.readline().decode()
+                    print(f"send_pcb_command response {count} -- ",response)
+                    if "pump - single" in response:
+                        print("Single pump connected")
+                    if response in ("Press Y for yes and N for no then press Enter\r\n", "put quantity for calibration in ml\r\n","enter Y for yes and N for no\r\n","Machine is Ready to despense\r\n","wrong input. pls put clb qunatity in numaric format"):
+                        print("Serial port closed end of commands")
+                        break
+                    elif response=="":
+                        print("Serial port closed blank response")
+                        break
+                    count+=1
             return "Success"
         except Exception as e:
             print("send_pcb_command error",e)
@@ -199,19 +272,22 @@ class Worker(QThread):
                 return
             machineResponse=self.sendPcbCommand(command)
             if machineResponse == "Success":
-                local_cursor = localConn.cursor()
+                localCursor = localConn.cursor()
                 if lotDetails:
                     lotNo=lotDetails['lotNo']
                     totRemaining=lotDetails['quantityRemaining']
-                    remaining=totRemaining-dose
-                    query = "UPDATE stock SET quantityRemaining=?, updatedBy=?, updatedAt=? WHERE dinGroupID=? AND lotNo=?"
-                    values=(remaining,loginUser,datetime.now(),medicationID,lotNo)
-                    local_cursor.execute(query,values)
+                    if totRemaining is not None:
+                        remaining=totRemaining-dose
+                        query = "UPDATE stock SET quantityRemaining=?, updatedBy=?, updatedAt=? WHERE dinGroupID=? AND lotNo=?"
+                        values=(remaining,loginUser,datetime.now(),medicationID,lotNo)
+                        localCursor.execute(query,values)
+                    else:
+                        print("Skipping stock quantity update due to non-numeric remaining quantity")
                 else:
                     lotNo=None
                 query = "INSERT INTO instantDoseLogs (idlMedicationID,idlDose,idlLotNo,createdBy,updatedBy, createdDate, updatedDate) VALUES (?,?,?,?,?,?,?)"
                 values=(medicationID,dose,lotNo,loginUser,loginUser,datetime.now(),datetime.now())
-                local_cursor.execute(query,values)
+                localCursor.execute(query,values)
 
                 localConn.commit()
                 self.instantFill.emit('success','ok')
