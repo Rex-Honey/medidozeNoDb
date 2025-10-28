@@ -1,5 +1,5 @@
 # pages/settings_page.py
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QProgressBar
 from PyQt6 import uic
 from PyQt6.QtCore import QObject, QTimer, QThread, pyqtSignal
 from PyQt6.QtGui import QDoubleValidator
@@ -138,7 +138,7 @@ class InstantDoseWindow(QWidget):
         widget.style().unpolish(widget)
         widget.style().polish(widget)
 
-    def responseInstantFill(self,status,msg):
+    def responseInstantFill(self,status,msg,progressBar):
         try:
             if status == 'error':
                 print("Error: ",msg)
@@ -151,8 +151,8 @@ class InstantDoseWindow(QWidget):
                 self.infoInstantFill.setText("Filling Done")
                 self.infoInstantFill.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
             QTimer.singleShot(4000, self.clearInfoMessages)
-            self.progressBarLeft.setRange(0, 100)  # Reset progress bar
-            self.progressBarRight.setRange(0, 100)  # Reset progress bar
+            progressBar.setStyleSheet("border:None")
+            progressBar.setRange(0, 100)  # Reset progress bar
             self._setButtonsEnabled(True)
             self.workerThread.quit()
             self.workerThread.wait()
@@ -212,12 +212,14 @@ class InstantDoseWindow(QWidget):
                 return
             self._setButtonsEnabled(False)
             context.progressBar.setRange(0, 0)
+            context.progressBar.setStyleSheet("border:1px solid grey;")
             self.worker.count=0
             command = context.commandTemplate.format(dose=dose)
 
             job = partial(
                 self.worker.fillInstantDoseWorker,
                 self.localConn,
+                context.progressBar,
                 command,
                 dose,
                 medicationID,
@@ -234,6 +236,8 @@ class InstantDoseWindow(QWidget):
             self._workerStartedSlot = job
             self.workerThread.started.connect(job)
             self.workerThread.start()
+
+
         except Exception as e:
             print(e)
             self._setButtonsEnabled(True)
@@ -300,7 +304,7 @@ class InstantDoseWindow(QWidget):
             print(e)
 
 class Worker(QObject):
-    instantFill=pyqtSignal(str,str)
+    instantFill=pyqtSignal(str,str,QProgressBar)
     def __init__(self):
         super().__init__()
         self.count = 0
@@ -359,7 +363,7 @@ class Worker(QObject):
             print("send_pcb_command error",e)
             return e
 
-    def fillInstantDoseWorker(self,localConn,command,dose,medicationID,lotDetails,loginUser):
+    def fillInstantDoseWorker(self,localConn,progressBar,command,dose,medicationID,lotDetails,loginUser):
         try:
             print(" -- instant Fill Dose Worker --")
             self.count+=1
@@ -385,9 +389,9 @@ class Worker(QObject):
                 localCursor.execute(query,values)
 
                 localConn.commit()
-                self.instantFill.emit('success','ok')
+                self.instantFill.emit('success','ok',progressBar)
             else:
-                self.instantFill.emit('error',str(machineResponse))
+                self.instantFill.emit('error',str(machineResponse),progressBar)
         except Exception as e:
             print(e)
-            self.instantFill.emit('error',str(e))
+            self.instantFill.emit('error',str(e),progressBar)
