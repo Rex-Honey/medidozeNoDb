@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>825</width>
+    <height>562</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,7 +66,8 @@ font-weight: 700;
 padding:10px 0px 0px 0px;
 margin-top:12px;
 font-family:Nirmala UI;
-font-size:15pt
+font-size:15pt;
+border-radius:10%
 }
 QGroupBox:title{
 subcontrol-origin: margin;
@@ -195,7 +196,8 @@ font-size:12pt</string>
                  <property name="styleSheet">
                   <string notr="true">padding:10px;
 border:1px solid #e1e4e6;
-font-size:11pt</string>
+font-size:11pt;
+border-radius:10%</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -347,7 +349,8 @@ font-weight: 700;
 padding:10px 0px 0px 0px;
 margin-top:12px;
 font-family:Nirmala UI;
-font-size:15pt
+font-size:15pt;
+border-radius:10%
 }
 QGroupBox:title{
 subcontrol-origin: margin;
@@ -489,7 +492,8 @@ font-size:12pt</string>
                  <property name="styleSheet">
                   <string notr="true">padding:10px;
 border:1px solid #e1e4e6;
-font-size:11pt</string>
+font-size:11pt;
+border-radius:10%</string>
                  </property>
                  <property name="text">
                   <string/>
