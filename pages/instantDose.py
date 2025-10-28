@@ -25,6 +25,24 @@ class PumpContext:
 
 QUANTITY_PATTERN = re.compile(r"^\d+(\.\d{1,2})?$")
 
+ENABLED_BUTTON_STYLE = (
+    "background:#48C9E3;"
+    "color:#FFFFFF;"
+    "border-radius:10%;"
+    "padding:10px 40px;"
+    "font-weight:900;"
+    "font-size:11pt;"
+)
+
+DISABLED_BUTTON_STYLE = (
+    "background:lightgrey;"
+    "color:#FFFFFF;"
+    "border-radius:10%;"
+    "padding:10px 40px;"
+    "font-weight:900;"
+    "font-size:11pt;"
+)
+
 class InstantDoseWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -77,11 +95,13 @@ class InstantDoseWindow(QWidget):
         self.btnFillRight.clicked.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
         self.txtDoseRight.returnPressed.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
         self.txtDoseRight.setValidator(self.floatValidator)
+        self._applyButtonStyles()
 
         self.worker = Worker()
         self.worker.instantFill.connect(self.responseInstantFill)
         self.workerThread = QThread()
         self.worker.moveToThread(self.workerThread)
+        self._workerStartedSlot = None
 
     def _resetFieldStates(self):
         for inputField, errLabel in self.fields:
@@ -91,6 +111,18 @@ class InstantDoseWindow(QWidget):
     def _setButtonsEnabled(self, enabled: bool):
         self.btnFillLeft.setEnabled(enabled)
         self.btnFillRight.setEnabled(enabled)
+        self._applyButtonStyles()
+
+    def _applyButtonStyles(self):
+        if self.btnFillLeft.isEnabled():
+            self.btnFillLeft.setStyleSheet(ENABLED_BUTTON_STYLE)
+        else:
+            self.btnFillLeft.setStyleSheet(DISABLED_BUTTON_STYLE)
+
+        if self.btnFillRight.isEnabled():
+            self.btnFillRight.setStyleSheet(ENABLED_BUTTON_STYLE)
+        else:
+            self.btnFillRight.setStyleSheet(DISABLED_BUTTON_STYLE)
 
     def setState(self,widget, state):
         widget.setProperty("ok2", state == "ok")
@@ -116,11 +148,24 @@ class InstantDoseWindow(QWidget):
             self._setButtonsEnabled(True)
             self.workerThread.quit()
             self.workerThread.wait()
-            self.workerThread.disconnect()
+            if self._workerStartedSlot is not None:
+                try:
+                    self.workerThread.started.disconnect(self._workerStartedSlot)
+                except TypeError:
+                    pass
+                self._workerStartedSlot = None
             print("Response Done")
         except Exception as e:
             print(e)
             self._setButtonsEnabled(True)
+            self.workerThread.quit()
+            self.workerThread.wait()
+            if self._workerStartedSlot is not None:
+                try:
+                    self.workerThread.started.disconnect(self._workerStartedSlot)
+                except TypeError:
+                    pass
+                self._workerStartedSlot = None
 
     def fillInstantDose(self,triggerBy=None):
         try:
@@ -172,10 +217,18 @@ class InstantDoseWindow(QWidget):
                 self.userData['uid'],
             )
 
+            if self._workerStartedSlot is not None:
+                try:
+                    self.workerThread.started.disconnect(self._workerStartedSlot)
+                except TypeError:
+                    pass
+
+            self._workerStartedSlot = job
             self.workerThread.started.connect(job)
             self.workerThread.start()
         except Exception as e:
             print(e)
+            self._setButtonsEnabled(True)
 
     def _parseDose(self, context: PumpContext) -> Optional[float]:
         rawValue = context.inputField.text().strip()

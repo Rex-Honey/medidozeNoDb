@@ -267,7 +267,7 @@ font-size:12pt</string>
                  <property name="font">
                   <font>
                    <pointsize>11</pointsize>
-                   <weight>99</weight>
+                   <weight>75</weight>
                    <bold>true</bold>
                   </font>
                  </property>
@@ -279,14 +279,6 @@ font-size:12pt</string>
                  </property>
                  <property name="autoFillBackground">
                   <bool>false</bool>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">background:#48C9E3;
-color:#FFFFFF;
-border-radius:10%;
-padding:10px 40px;
-font-weight: 900;
-font-size:11pt</string>
                  </property>
                  <property name="text">
                   <string>Fill</string>
@@ -560,7 +552,7 @@ font-size:12pt</string>
                  <property name="font">
                   <font>
                    <pointsize>11</pointsize>
-                   <weight>99</weight>
+                   <weight>75</weight>
                    <bold>true</bold>
                   </font>
                  </property>
@@ -572,14 +564,6 @@ font-size:12pt</string>
                  </property>
                  <property name="autoFillBackground">
                   <bool>false</bool>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">background:#48C9E3;
-color:#FFFFFF;
-border-radius:10%;
-padding:10px 40px;
-font-weight: 900;
-font-size:11pt</string>
                  </property>
                  <property name="text">
                   <string>Fill</string>
