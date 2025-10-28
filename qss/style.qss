@@ -25,6 +25,18 @@ QLineEdit[disabled=true] {
     padding: 14px 10px;
     border: 1px solid #e1e4e6;
 }
+QLineEdit[ok2=true] {
+    background: #FFFFFF;
+    border-radius: 10%;
+    padding: 10px;
+    border: 1px solid #e1e4e6;
+}
+QLineEdit[error2=true] {
+    background: #FFFFFF;
+    border-radius: 10%;
+    padding: 10px;
+    border: 1px solid red;
+}
 QFrame[ok=true] {
     background:#FFFFFF;
     border:1px solid #e1e4e6;

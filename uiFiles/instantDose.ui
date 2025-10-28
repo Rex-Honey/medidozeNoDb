@@ -194,10 +194,7 @@ font-size:12pt</string>
                   </font>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">padding:10px;
-border:1px solid #e1e4e6;
-font-size:11pt;
-border-radius:10%</string>
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string/>
@@ -490,10 +487,7 @@ font-size:12pt</string>
                   </font>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">padding:10px;
-border:1px solid #e1e4e6;
-font-size:11pt;
-border-radius:10%</string>
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string/>
