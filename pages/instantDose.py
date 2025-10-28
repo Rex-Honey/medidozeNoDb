@@ -2,6 +2,7 @@
 from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
 from PyQt6.QtCore import QObject, QTimer, QThread, pyqtSignal
+from PyQt6.QtGui import QDoubleValidator
 from functools import partial
 from dataclasses import dataclass
 import os
@@ -38,6 +39,10 @@ class InstantDoseWindow(QWidget):
         ui_path = os.path.join(rootDir, "uiFiles", "instantDose.ui")
         uic.loadUi(ui_path, self)
 
+        self.floatValidator = QDoubleValidator()
+        self.floatValidator.setRange(1, 999.99, 2)
+        self.floatValidator.setNotation(QDoubleValidator.Notation.StandardNotation)
+
         localCursor = self.localConn.cursor()
         localCursor.execute("SELECT pump_position, medication from din_groups")
         pumpMedicationDict = {row[0]: row[1] for row in localCursor.fetchall()}
@@ -68,8 +73,10 @@ class InstantDoseWindow(QWidget):
 
         self.btnFillLeft.clicked.connect(partial(self.fillInstantDose,triggerBy="LeftPumpBtn"))
         self.txtDoseLeft.returnPressed.connect(partial(self.fillInstantDose,triggerBy="LeftPumpBtn"))
+        self.txtDoseLeft.setValidator(self.floatValidator)
         self.btnFillRight.clicked.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
         self.txtDoseRight.returnPressed.connect(partial(self.fillInstantDose,triggerBy="RightPumpBtn"))
+        self.txtDoseRight.setValidator(self.floatValidator)
 
         self.worker = Worker()
         self.worker.instantFill.connect(self.responseInstantFill)
