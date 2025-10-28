@@ -12,7 +12,14 @@ class InstantDoseWindow(QWidget):
             return
         self.config = config
         self.userData = userData
-        self.local_conn = localConn
+        self.localConn = localConn
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "instantDose.ui")
         uic.loadUi(ui_path, self)
+
+        localCursor = self.localConn.cursor()
+        localCursor.execute("SELECT pump_position, medication from din_groups")
+        pumpMedicationDict = {row[0]: row[1] for row in localCursor.fetchall()}
+        if pumpMedicationDict:
+            self.drugNameLeftInstantDose.setText(pumpMedicationDict['Left'])
+            self.drugNameRightInstantDose.setText(pumpMedicationDict['Right'])
