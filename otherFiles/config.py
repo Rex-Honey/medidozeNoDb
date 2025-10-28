@@ -4,6 +4,8 @@ localConn = None
 liveConn = None
 userData = None
 pcbComPort = None
+leftPump = None
+rightPump = None
 
 def setLocalConfig(configData, localConnData):
     """Initialize global configuration"""
@@ -31,3 +33,13 @@ def updatePcbComPort(pcbComPortData):
         print(f"PCB com port updated: {pcbComPort}")
     except Exception as e:
         print(f"Error updating PCB com port: {e}")
+
+def updateLeftPump(leftPumpData):
+    global leftPump
+    leftPump = leftPumpData
+    print(f"Left pump updated: {leftPump}")
+
+def updateRightPump(rightPumpData):
+    global rightPump
+    rightPump = rightPumpData
+    print(f"Right pump updated: {rightPump}")

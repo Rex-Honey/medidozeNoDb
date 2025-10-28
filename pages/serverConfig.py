@@ -7,6 +7,7 @@ from datetime import datetime
 from hashlib import sha256
 from PyQt6.QtCore import QStandardPaths
 from otherFiles.common import setState,medidozeDir
+from otherFiles.config import updateLeftPump, updateRightPump
 
 class ServerConfigWindow(QWidget):
     serverSetUpDone = pyqtSignal(dict,str)
@@ -37,8 +38,8 @@ class ServerConfigWindow(QWidget):
                     setState(widget, "err")
                     error_label.setText(error_msg)
                     fieldsEmpty=True
-            if fieldsEmpty:
-                return
+            # if fieldsEmpty:
+            #     return
 
             serverIP=self.txtServerIP.text()
             serverPort=self.txtPort.text()
@@ -47,11 +48,11 @@ class ServerConfigWindow(QWidget):
             password=self.txtPassword.text()
             localDatabase="medidozeAI"
 
-            # serverIP="192.168.29.151"
-            # serverPort="1433"
-            # serverName="SQLEXPRESS"
-            # username="sa"
-            # password="dexter"
+            serverIP="192.168.29.226"
+            serverPort="1433"
+            serverName="SQLEXPRESS"
+            username="sa"
+            password="dexter"
 
             config={
                     "server":f"{serverIP},{serverPort}\\{serverName}",
@@ -377,6 +378,8 @@ class ServerConfigWindow(QWidget):
             self.local_conn.commit()
             local_cursor.close()
             print("================ Tables Created ================")
+            updateLeftPump('Metadol')
+            updateRightPump('Methadose')
             return {'status':'success'}
         except Exception as e:
             print(e)
