@@ -4,8 +4,8 @@ localConn = None
 liveConn = None
 userData = None
 pcbComPort = None
-leftPump = None
-rightPump = None
+leftPumpMedication = None
+rightPumpMedication = None
 
 def setLocalConfig(configData, localConnData):
     """Initialize global configuration"""
@@ -30,12 +30,18 @@ def updatePcbComPort(pcbComPortData):
     pcbComPort = pcbComPortData["device"]
     print(f"PCB com port updated: {pcbComPort}")
 
-def updateLeftPump(leftPumpData):
-    global leftPump
-    leftPump = leftPumpData
-    print(f"Left pump updated: {leftPump}")
+def updatePumpMedication(pumpPosition, medication):
+    global leftPumpMedication, rightPumpMedication
+    if pumpPosition == 'Left':
+        leftPumpMedication = medication
+    elif pumpPosition == 'Right':
+        rightPumpMedication = medication
+    print(f"{pumpPosition} Pump medication updated: {medication}")
 
-def updateRightPump(rightPumpData):
-    global rightPump
-    rightPump = rightPumpData
-    print(f"Right pump updated: {rightPump}")
+def updatePumpCalibrated(pumpPosition):
+    global leftPumpCalibrated, rightPumpCalibrated
+    if pumpPosition == 'Left':
+        leftPumpCalibrated = True
+    elif pumpPosition == 'Right':
+        rightPumpCalibrated = True
+    print(f"Pump {pumpPosition} calibrated: True")
