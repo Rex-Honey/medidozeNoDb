@@ -19,6 +19,10 @@ class DashboardWindow(QWidget):
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "dashboard.ui")
 
+        self.worker = Worker()
+        self.workerThread = QThread()
+        self.worker.moveToThread(self.workerThread)
+
         uic.loadUi(ui_path, self)
         self.loadInitialData()
 
@@ -33,6 +37,8 @@ class DashboardWindow(QWidget):
                 self.medPumpLeft.setText(pumpMedicationDict['Left'])
             if 'Right' in pumpMedicationDict:
                 self.medPumpRight.setText(pumpMedicationDict['Right'])
+            self.workerThread.start()
+            self.workerThread.started.connect(self.worker.checkPumpStatusWorker)
         except Exception as e:
             print(e)
 
@@ -63,3 +69,12 @@ class DashboardWindow(QWidget):
                 print("PCB not connected")
         except Exception as e:
             print(e)
+
+class Worker(QObject):
+    pumpStatus=pyqtSignal(str)
+    def __init__(self):
+        super().__init__()
+        from otherFiles.config import pcbComPort
+        self.pcbComPort = pcbComPort
+
+
