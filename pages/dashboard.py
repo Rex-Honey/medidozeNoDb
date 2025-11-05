@@ -88,3 +88,54 @@ class Worker(QObject):
             print("check_Pump_Status_Worker error",e)
             self.pumpStatus.emit('error')
 
+    def sendPcbCommand(self,command):
+        try:
+            print(command)
+            baudrate=115200
+            payload = f"{command.strip()}\n".encode("utf-8")
+            with serial.Serial(
+                self.pcbComPort,
+                baudrate,
+                timeout=1.0,
+                write_timeout=2.0,
+            ) as ser:
+                ser.reset_input_buffer()
+                ser.reset_output_buffer()
+                ser.write(payload)
+                ser.flush()
+                time.sleep(0.05)
+
+                responses = []
+                empty_reads = 0
+                max_empty_reads = 3
+                max_duration = 8.0
+                start_time = time.monotonic()
+
+                while time.monotonic() - start_time < max_duration:
+                    raw_response = ser.readline()
+                    if not raw_response:
+                        empty_reads += 1
+                        if empty_reads >= max_empty_reads:
+                            print("send_pcb_command: reached empty read limit")
+                            break
+                        continue
+
+                    empty_reads = 0
+                    response = raw_response.decode("utf-8", errors="ignore").strip()
+                    if not response:
+                        continue
+
+                    responses.append(response)
+                    print(f"send_pcb_command response {len(responses)} -- {response}")
+
+                    response_lower = response.lower()
+                    if "pump - single" in response_lower:
+                        print("Single pump connected")
+
+                    if any(keyword in response_lower for keyword in ERROR_KEYWORDS):
+                        return f"PCB error: {response}"
+
+            return "Success"
+        except Exception as e:
+            print("send_pcb_command error",e)
+            return e
