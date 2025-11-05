@@ -7,7 +7,7 @@ from datetime import datetime
 from hashlib import sha256
 from PyQt6.QtCore import QStandardPaths
 from otherFiles.common import setState,medidozeDir
-from otherFiles.config import updateLeftPump, updateRightPump
+from otherFiles.config import updatePumpMedication
 
 class ServerConfigWindow(QWidget):
     serverSetUpDone = pyqtSignal(dict,str)
@@ -378,8 +378,8 @@ class ServerConfigWindow(QWidget):
             self.local_conn.commit()
             local_cursor.close()
             print("================ Tables Created ================")
-            updateLeftPump('Metadol')
-            updateRightPump('Methadose')
+            updatePumpMedication('Left','Metadol')
+            updatePumpMedication('Right','Methadose')
             return {'status':'success'}
         except Exception as e:
             print(e)
