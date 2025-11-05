@@ -5,7 +5,8 @@ import json, pyodbc, sys, os, resr
 from pages.sigin import SignInWindow
 from pages.serverConfig import ServerConfigWindow
 from pages.mainApp import MainAppWindow
-from otherFiles.config import setLocalConfig, updateLiveConn, updateLeftPump, updateRightPump
+from otherFiles.config import setLocalConfig, updateLiveConn, updatePumpMedication, updatePumpCalibrated
+from datetime import datetime
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,11 +45,18 @@ class MainWindow(QMainWindow):
             )
             localConn = pyodbc.connect(localConnString)
             localCursor = localConn.cursor()
+
             localCursor.execute("SELECT pump_position, medication from din_groups")
             pumpMedicationDict = {row[0]: row[1] for row in localCursor.fetchall()}
-            if pumpMedicationDict:
-                updateLeftPump(pumpMedicationDict['Left'])
-                updateRightPump(pumpMedicationDict['Right'])
+            updatePumpMedication('Left', pumpMedicationDict['Left'])
+            updatePumpMedication('Right', pumpMedicationDict['Right'])
+
+            todayDate=datetime.now().strftime("%Y-%m-%d")
+            if config['calibrationDateLeft']==todayDate:
+                updatePumpCalibrated('Left')
+            if config['calibrationDateRight']==todayDate:
+                updatePumpCalibrated('Right')
+
             print("Local connection successful!")
             localConn.close()
 
