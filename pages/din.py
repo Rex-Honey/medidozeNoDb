@@ -11,12 +11,11 @@ from datetime import datetime
 class DinWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, userData, localConn, updateLeftPump, updateRightPump
+        from otherFiles.config import config, userData, localConn, updatePumpMedication
         self.config = config
         self.userData = userData
         self.local_conn = localConn
-        self.updateLeftPump = updateLeftPump
-        self.updateRightPump = updateRightPump
+        self.updatePumpMedication = updatePumpMedication
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "din.ui")
         uic.loadUi(ui_path, self)
@@ -246,16 +245,16 @@ class DinWindow(QWidget):
 
                 query = f"update din_groups set pump_position='Right' where medication='Methadose'"
                 local_cursor.execute(query)
-                self.updateLeftPump('Metadol')
-                self.updateRightPump('Methadose')
+                self.updatePumpMedication('Left', 'Metadol')
+                self.updatePumpMedication('Right', 'Methadose')
             else:
                 query = f"update din_groups set pump_position='Left' where medication='Methadose'"
                 local_cursor.execute(query)
 
                 query = f"update din_groups set pump_position='Right' where medication='Metadol'"
                 local_cursor.execute(query)
-                self.updateLeftPump('Methadose')
-                self.updateRightPump('Metadol')
+                self.updatePumpMedication('Left', 'Methadose')
+                self.updatePumpMedication('Right', 'Metadol')
             self.local_conn.commit()
             self.infoViewDins.setText("Medications saved successfully")
             self.infoViewDins.setStyleSheet("background:lightgreen;color:green;padding:12px;border-radius:none")
