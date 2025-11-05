@@ -3,11 +3,14 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
 import os, pyodbc
 import serial.tools.list_ports
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
+import time
+
 
 class DashboardWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, userData, localConn, updatePcbComPort
+        from otherFiles.config import config, userData, localConn, leftPumpMedication, rightPumpMedication, updatePcbComPort
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return
@@ -15,7 +18,6 @@ class DashboardWindow(QWidget):
         self.userData = userData
         self.localConn = localConn
         self.updatePcbComPort = updatePcbComPort
-        
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "dashboard.ui")
 
@@ -71,7 +73,7 @@ class DashboardWindow(QWidget):
             print(e)
 
 class Worker(QObject):
-    pumpStatus=pyqtSignal(str)
+    chkPumpStatus=pyqtSignal(str)
     def __init__(self):
         super().__init__()
         from otherFiles.config import pcbComPort
@@ -81,12 +83,12 @@ class Worker(QObject):
         try:
             machineResponse=self.sendPcbCommand('check_status')
             if machineResponse == "Success":
-                self.pumpStatus.emit('ok')
+                self.chkPumpStatus.emit('ok')
             else:
-                self.pumpStatus.emit('error')
+                self.chkPumpStatus.emit('error')
         except Exception as e:
             print("check_Pump_Status_Worker error",e)
-            self.pumpStatus.emit('error')
+            self.chkPumpStatus.emit('error')
 
     def sendPcbCommand(self,command):
         try:
@@ -131,9 +133,6 @@ class Worker(QObject):
                     response_lower = response.lower()
                     if "pump - single" in response_lower:
                         print("Single pump connected")
-
-                    if any(keyword in response_lower for keyword in ERROR_KEYWORDS):
-                        return f"PCB error: {response}"
 
             return "Success"
         except Exception as e:
