@@ -77,4 +77,14 @@ class Worker(QObject):
         from otherFiles.config import pcbComPort
         self.pcbComPort = pcbComPort
 
+    def checkPumpStatusWorker(self):
+        try:
+            machineResponse=self.sendPcbCommand('check_status')
+            if machineResponse == "Success":
+                self.pumpStatus.emit('ok')
+            else:
+                self.pumpStatus.emit('error')
+        except Exception as e:
+            print("check_Pump_Status_Worker error",e)
+            self.pumpStatus.emit('error')
 
