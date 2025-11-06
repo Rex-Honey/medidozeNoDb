@@ -122,8 +122,7 @@ def sendPcbCommand(
 ) -> Union[str, Exception]:
     try:
         if not port:
-            print("PCB com port not configured")
-            return "PCB com port not configured"
+            return
 
         if logCommand:
             print(command)
