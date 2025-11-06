@@ -4,7 +4,7 @@ from PyQt6 import uic
 import os, pyodbc
 import serial.tools.list_ports
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
-import time
+from otherFiles.common import sendPcbCommand
 
 
 class DashboardWindow(QWidget):
@@ -107,7 +107,7 @@ class Worker(QObject):
 
     def checkPumpStatusWorker(self):
         try:
-            machineResponse=self.sendPcbCommand('check_status')
+            machineResponse = sendPcbCommand(self.pcbComPort, 'check_status')
             if machineResponse == "Success":
                 self.chkPumpStatus.emit('ok')
             else:
@@ -115,55 +115,3 @@ class Worker(QObject):
         except Exception as e:
             print("check_Pump_Status_Worker error",e)
             self.chkPumpStatus.emit('error')
-
-    def sendPcbCommand(self,command):
-        try:
-            # print("-- send_Pcb_Command --")
-            if not self.pcbComPort:
-                print("PCB com port not configured")
-                return
-            baudrate=115200
-            payload = f"{command.strip()}\n".encode("utf-8")
-            with serial.Serial(
-                self.pcbComPort,
-                baudrate,
-                timeout=1.0,
-                write_timeout=2.0,
-            ) as ser:
-                ser.reset_input_buffer()
-                ser.reset_output_buffer()
-                ser.write(payload)
-                ser.flush()
-                time.sleep(0.05)
-
-                responses = []
-                empty_reads = 0
-                max_empty_reads = 3
-                max_duration = 8.0
-                start_time = time.monotonic()
-
-                while time.monotonic() - start_time < max_duration:
-                    raw_response = ser.readline()
-                    if not raw_response:
-                        empty_reads += 1
-                        if empty_reads >= max_empty_reads:
-                            print("send_pcb_command: reached empty read limit")
-                            break
-                        continue
-
-                    empty_reads = 0
-                    response = raw_response.decode("utf-8", errors="ignore").strip()
-                    if not response:
-                        continue
-
-                    responses.append(response)
-                    print(f"send_pcb_command response {len(responses)} -- {response}")
-
-                    response_lower = response.lower()
-                    if "pump - single" in response_lower:
-                        print("Single pump connected")
-
-            return "Success"
-        except Exception as e:
-            print("send_pcb_command error",e)
-            return e
