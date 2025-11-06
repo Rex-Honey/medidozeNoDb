@@ -6,6 +6,8 @@ userData = None
 pcbComPort = None
 leftPumpMedication = None
 rightPumpMedication = None
+leftPumpCalibrated = False
+rightPumpCalibrated = False
 
 def setLocalConfig(configData, localConnData):
     """Initialize global configuration"""

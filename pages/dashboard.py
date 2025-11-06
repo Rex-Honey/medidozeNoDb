@@ -10,7 +10,7 @@ import time
 class DashboardWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, userData, localConn, leftPumpMedication, rightPumpMedication, updatePcbComPort
+        from otherFiles.config import config, userData, localConn, updatePcbComPort, leftPumpCalibrated, rightPumpCalibrated
         if config is None or localConn is None:
             print("Configuration not properly initialized. Please restart the application.")
             return
@@ -18,12 +18,15 @@ class DashboardWindow(QWidget):
         self.userData = userData
         self.localConn = localConn
         self.updatePcbComPort = updatePcbComPort
+        self.leftPumpCalibrated = leftPumpCalibrated
+        self.rightPumpCalibrated = rightPumpCalibrated
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "dashboard.ui")
 
         self.worker = Worker()
         self.workerThread = QThread()
         self.worker.moveToThread(self.workerThread)
+        self.worker.chkPumpStatus.connect(self.updatePumpStatus)
 
         uic.loadUi(ui_path, self)
         self.loadInitialData()
@@ -31,14 +34,6 @@ class DashboardWindow(QWidget):
     def loadInitialData(self):
         try:
             self.listUsbPorts()
-            localCursor = self.localConn.cursor()
-            localCursor.execute(f"SELECT pump_position, medication FROM din_groups;")
-            medications = localCursor.fetchall()
-            pumpMedicationDict = {row[0]: row[1] for row in medications}
-            if 'Left' in pumpMedicationDict:
-                self.medPumpLeft.setText(pumpMedicationDict['Left'])
-            if 'Right' in pumpMedicationDict:
-                self.medPumpRight.setText(pumpMedicationDict['Right'])
             self.workerThread.start()
             self.workerThread.started.connect(self.worker.checkPumpStatusWorker)
         except Exception as e:
@@ -67,8 +62,40 @@ class DashboardWindow(QWidget):
                 if 'USB-SERIAL CH340' in port.description:
                     self.updatePcbComPort(portData)
                     pcbConnected=True
+                    self.worker.pcbComPort = portData["device"]
             if not pcbConnected:
                 print("PCB not connected")
+        except Exception as e:
+            print(e)
+
+    def updatePumpStatus(self,status):
+        try:
+            if status == 'ok':
+                if self.leftPumpCalibrated:
+                    self.btnStatusPumpLeft.setText("READY")
+                    self.btnStatusPumpLeft.setCursor(Qt.CursorShape.ArrowCursor)
+                    print("Left Pump ready")
+                else:
+                    self.btnStatusPumpLeft.setText("Uncalibrated")
+                    self.btnStatusPumpLeft.setCursor(Qt.CursorShape.PointingHandCursor)
+                    print("Left Pump uncalibrated")
+                if self.rightPumpCalibrated:
+                    self.btnStatusPumpRight.setText("READY")
+                    self.btnStatusPumpRight.setCursor(Qt.CursorShape.ArrowCursor)
+                    print("Right Pump ready")
+                else:
+                    self.btnStatusPumpRight.setText("Uncalibrated")
+                    self.btnStatusPumpRight.setCursor(Qt.CursorShape.PointingHandCursor)
+                    print("Right Pump uncalibrated")
+            else:
+                self.btnStatusPumpLeft.setText("Offline")
+                self.btnStatusPumpRight.setText("Offline")
+            self.workerThread.quit()
+            self.workerThread.wait()
+            try:
+                self.workerThread.started.disconnect()
+            except (TypeError, RuntimeError):
+                pass
         except Exception as e:
             print(e)
 
@@ -76,8 +103,7 @@ class Worker(QObject):
     chkPumpStatus=pyqtSignal(str)
     def __init__(self):
         super().__init__()
-        from otherFiles.config import pcbComPort
-        self.pcbComPort = pcbComPort
+        self.pcbComPort = None
 
     def checkPumpStatusWorker(self):
         try:
@@ -92,7 +118,10 @@ class Worker(QObject):
 
     def sendPcbCommand(self,command):
         try:
-            print(command)
+            # print("-- send_Pcb_Command --")
+            if not self.pcbComPort:
+                print("PCB com port not configured")
+                return
             baudrate=115200
             payload = f"{command.strip()}\n".encode("utf-8")
             with serial.Serial(
