@@ -1,4 +1,5 @@
-import os
+import os, time, serial
+from typing import Iterable, Optional, Union
 from PyQt6.QtGui import QImage, QPixmap, QPainter, QBrush, QWindow
 from PyQt6.QtCore import Qt, QRect, QStandardPaths
 
@@ -105,3 +106,62 @@ def roundImage(imgdata, imgtype='jpg', size=120):
             size *= int(pr)
             pm = pm.scaled(size, size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             return pm
+
+
+def sendPcbCommand(
+    port: Optional[str],
+    command: str,
+    *,
+    baudRate: int = 115200,
+    readTimeout: float = 1.0,
+    writeTimeout: float = 2.0,
+    maxEmptyReads: int = 3,
+    maxDuration: float = 8.0,
+    errorKeywords: Optional[Iterable[str]] = None,
+    logCommand: bool = False,
+) -> Union[str, Exception]:
+    try:
+        if not port:
+            print("PCB com port not configured")
+            return "PCB com port not configured"
+
+        if logCommand:
+            print(command)
+
+        payload = f"{command.strip()}\n".encode("utf-8")
+        with serial.Serial(
+            port,
+            baudRate,
+            timeout=readTimeout,
+            write_timeout=writeTimeout,
+        ) as ser:
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
+            ser.write(payload)
+            ser.flush()
+            time.sleep(0.05)
+
+            responses = []
+            emptyReads = 0
+            startTime = time.monotonic()
+
+            while time.monotonic() - startTime < maxDuration:
+                rawResponse = ser.readline()
+                if not rawResponse:
+                    emptyReads += 1
+                    if emptyReads >= maxEmptyReads:
+                        print("sendPcbCommand: reached empty read limit")
+                        break
+                    continue
+
+                emptyReads = 0
+                response = rawResponse.decode("utf-8", errors="ignore").strip()
+                if not response:
+                    continue
+
+                responses.append(response)
+                print(f"sendPcbCommand response {len(responses)} -- {response}")
+        return "Success"
+    except Exception as error:
+        print("sendPcbCommand error", error)
+        return error
