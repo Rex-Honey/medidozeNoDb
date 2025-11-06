@@ -52,12 +52,12 @@ class DashboardWindow(QWidget):
 
     def loadInitialData(self):
         try:
-            self.getDispenseDoseAmount()
             self.listUsbPorts()
-            self.addDataToTotalDispenseSection()
-            self.addDataToTotalPatientSection()
             self.workerThread.start()
             self.workerThread.started.connect(self.worker.checkPumpStatusWorker)
+            self.getDispenseDoseAmount()
+            self.addDataToTotalDispenseSection()
+            self.addDataToTotalPatientSection()
         except Exception as e:
             print("load_Initial_Data error:",e)
 
@@ -273,20 +273,9 @@ class DashboardWindow(QWidget):
             if all(value < 3 for value in fiveDaysData):
                 axisY.setRange(0, 3)
             axisY.setTickCount(4)
-            # font.setPointSize(8)
-            # font.setBold(True)
-            # font.setFamily('Nirmala UI')
-            # axisY.setTitleFont(font)
-            # axisY.setTitleText('Dispense Amount')
             chart.addAxis(axisY,Qt.AlignmentFlag.AlignLeft)
             series.attachAxis(axisY)
             
-            # ========= old method =================
-            # chart.setTitle("Last 5 days Dispense")
-            # self.dispenseGraph = QtCharts.QChartView()
-            # self.dispenseGraph.setChart(chart)
-            # self.dispenseFrame.layout().addWidget(self.dispenseGraph)
-
             self.dispenseGraph = CustomChartView(chart, fiveDaysData)
             self.dispenseGraph.setMinimumHeight(200)
             self.dispenseGraph.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -306,8 +295,8 @@ class DashboardWindow(QWidget):
                 if item:
                     widget = item.widget().deleteLater()
 
-            # date_obj = datetime(2024, 7, 2)
             date_obj=datetime.now()
+            # date_obj = datetime(2024, 7, 2)
             day=date_obj-timedelta(days=4)
             daysNames=[]
             stringDates=[]
