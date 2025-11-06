@@ -6,6 +6,23 @@ import serial.tools.list_ports
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
 from otherFiles.common import sendPcbCommand
 
+STYLE_READY = (
+    "background:#7FBA00;"
+    "font-size:9pt;"
+    "padding:6px 8px;"
+    "color:#FFFFFF;"
+    "border-radius:2%;"
+    "font-weight:700;"
+)
+
+STYLE_NOT_READY = (
+    "padding:6px 8px;"
+    "background:#F25022;"
+    "font-size:9pt;"
+    "color:#FFFFFF;"
+    "border-radius:2%;"
+    "font-weight:600;"
+)
 
 class DashboardWindow(QWidget):
     def __init__(self):
@@ -73,23 +90,31 @@ class DashboardWindow(QWidget):
             if status == 'ok':
                 if self.leftPumpCalibrated:
                     self.btnStatusPumpLeft.setText("READY")
+                    self.btnStatusPumpLeft.setStyleSheet(STYLE_READY)
                     self.btnStatusPumpLeft.setCursor(Qt.CursorShape.ArrowCursor)
                     print("Left Pump ready")
                 else:
                     self.btnStatusPumpLeft.setText("Uncalibrated")
                     self.btnStatusPumpLeft.setCursor(Qt.CursorShape.PointingHandCursor)
+                    self.btnStatusPumpLeft.setStyleSheet(STYLE_NOT_READY)
                     print("Left Pump uncalibrated")
                 if self.rightPumpCalibrated:
                     self.btnStatusPumpRight.setText("READY")
+                    self.btnStatusPumpRight.setStyleSheet(STYLE_READY)
                     self.btnStatusPumpRight.setCursor(Qt.CursorShape.ArrowCursor)
                     print("Right Pump ready")
                 else:
                     self.btnStatusPumpRight.setText("Uncalibrated")
                     self.btnStatusPumpRight.setCursor(Qt.CursorShape.PointingHandCursor)
+                    self.btnStatusPumpRight.setStyleSheet(STYLE_NOT_READY)
                     print("Right Pump uncalibrated")
             else:
                 self.btnStatusPumpLeft.setText("Offline")
+                self.btnStatusPumpLeft.setStyleSheet(STYLE_NOT_READY)
+                self.btnStatusPumpLeft.setCursor(Qt.CursorShape.ArrowCursor)
                 self.btnStatusPumpRight.setText("Offline")
+                self.btnStatusPumpRight.setStyleSheet(STYLE_NOT_READY)
+                self.btnStatusPumpRight.setCursor(Qt.CursorShape.ArrowCursor)
             self.workerThread.quit()
             self.workerThread.wait()
             try:
