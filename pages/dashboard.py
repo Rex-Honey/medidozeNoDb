@@ -1,11 +1,17 @@
 # pages/dashboard.py
 from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
-import os, pyodbc
+import os
 import serial.tools.list_ports
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QMargins, QPointF
 from otherFiles.common import sendPcbCommand
-from datetime import datetime
+from datetime import datetime, timedelta
+from PyQt6.QtGui import QPainter, QFont
+from PyQt6 import QtCharts
+from PyQt6.QtCharts import QChartView
+from PyQt6.QtWidgets import QLabel
+
+# from PyQt6.QtCharts import QChartView, QBarSeries, QChart, QBarCategoryAxis, QValueAxis
 
 STYLE_READY = (
     "background:#7FBA00;"
@@ -48,6 +54,8 @@ class DashboardWindow(QWidget):
         try:
             self.getDispenseDoseAmount()
             self.listUsbPorts()
+            self.addDataToTotalDispenseSection()
+            self.addDataToTotalPatientSection()
             self.workerThread.start()
             self.workerThread.started.connect(self.worker.checkPumpStatusWorker)
         except Exception as e:
@@ -166,6 +174,232 @@ class DashboardWindow(QWidget):
             self.lblFilledRight.setText(str(totalRight))
         except Exception as e:
             print("get_Dispense_Dose_Amount error:",e)
+
+    def addDataToTotalDispenseSection(self):
+        try:
+            layout = self.dispenseFrame.layout()
+            for _ in range(layout.count()):
+                item = layout.takeAt(0)
+                if item:
+                    widget = item.widget().deleteLater()
+
+            # date_obj = datetime(2024, 7, 2)
+            date_obj=datetime.now()
+            day=date_obj-timedelta(days=4)
+            daysNames=[]
+            localCursor = self.localConn.cursor()
+            stringDates=[]
+            # dataList=[]
+            for _ in range(5):
+                daysNames.append(day.strftime('%A')[:3])
+                stringDates.append(day.strftime('%Y-%m-%d'))
+                day+=timedelta(days=1)
+            localCursor.execute(
+                f"""
+                SELECT 
+                    date, 
+                    SUM(TotalDose) AS TotalDose 
+                FROM 
+                    (
+                    SELECT 
+                        CONVERT(date, dispenseLogs.createdDate) AS date, 
+                        COALESCE(ROUND(SUM(dlDose), 2), 0) AS TotalDose 
+                    FROM 
+                        dispenseLogs 
+                    WHERE 
+                        CONVERT(date, dispenseLogs.createdDate) IN {tuple(stringDates)}
+                    GROUP BY 
+                        createdDate
+                    UNION ALL
+                    SELECT 
+                        CONVERT(date, instantDoseLogs.createdDate) AS date, 
+                        COALESCE(ROUND(SUM(idlDose), 2), 0) AS TotalDose 
+                    FROM 
+                        instantDoseLogs 
+                    WHERE 
+                        CONVERT(date, instantDoseLogs.createdDate) IN {tuple(stringDates)} 
+                    GROUP BY 
+                        createdDate
+                    ) AS combined
+                GROUP BY 
+                    date
+                """
+            )
+            queryFiveDaysDict = {row[0]:row[1] for row in localCursor.fetchall()}
+            fiveDaysData=[]
+            for stringDate in stringDates:
+                value=queryFiveDaysDict.get(stringDate,0)
+                if value==int(value):
+                    value=int(value)
+                else:
+                    value=round(value,1)
+                if stringDate in queryFiveDaysDict:
+                    fiveDaysData.append(value)
+                else:
+                    fiveDaysData.append(0)
+
+
+            series=QtCharts.QBarSeries()
+            # values=[30,40,50,60,70]
+
+            bar1=QtCharts.QBarSet("bar1") # name if multiple bars
+
+            for yval in fiveDaysData:
+                bar1.append(yval)
+                
+            series.append(bar1)
+
+            chart=QtCharts.QChart()
+            chart.setMargins(QMargins(0, 10, 0, 0))
+            chart.legend().setVisible(False)
+            chart.addSeries(series)
+            chart.setAnimationOptions(QtCharts.QChart.AnimationOption.AllAnimations)
+
+            axisX=QtCharts.QBarCategoryAxis()
+            font=axisX.labelsFont()
+            font.setPixelSize(10)
+            axisX.setLabelsFont(font)
+            axisX.append(daysNames)
+            # axisX.setTitleText('Days')
+            axisX.setGridLineVisible(False)
+            chart.addAxis(axisX,Qt.AlignmentFlag.AlignBottom)
+            series.attachAxis(axisX)
+
+            axisY=QtCharts.QValueAxis()
+            font=axisY.labelsFont()
+            font.setPixelSize(10)
+            axisY.setLabelsFont(font)
+            axisY.setLabelFormat('%d')
+            if all(value < 3 for value in fiveDaysData):
+                axisY.setRange(0, 3)
+            axisY.setTickCount(4)
+            # font.setPointSize(8)
+            # font.setBold(True)
+            # font.setFamily('Nirmala UI')
+            # axisY.setTitleFont(font)
+            # axisY.setTitleText('Dispense Amount')
+            chart.addAxis(axisY,Qt.AlignmentFlag.AlignLeft)
+            series.attachAxis(axisY)
+            
+            # ========= old method =================
+            # chart.setTitle("Last 5 days Dispense")
+            # self.dispenseGraph = QtCharts.QChartView()
+            # self.dispenseGraph.setChart(chart)
+            # self.dispenseFrame.layout().addWidget(self.dispenseGraph)
+
+            self.dispenseGraph = CustomChartView(chart, fiveDaysData)
+            self.dispenseGraph.setMinimumHeight(200)
+            self.dispenseGraph.setRenderHint(QPainter.RenderHint.Antialiasing)
+            label = QLabel("Last 5 days dispense")
+            label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            label.setStyleSheet("font-size: 14px; font-weight: bold;margin-top:10px")
+            layout.addWidget(label)
+            layout.addWidget(self.dispenseGraph)
+        except Exception as e:
+            print(e)
+
+    def addDataToTotalPatientSection(self):
+        try:
+            layout = self.patientFrame.layout()
+            for _ in range(layout.count()):
+                item = layout.takeAt(0)
+                if item:
+                    widget = item.widget().deleteLater()
+
+            # date_obj = datetime(2024, 7, 2)
+            date_obj=datetime.now()
+            day=date_obj-timedelta(days=4)
+            daysNames=[]
+            stringDates=[]
+            for _ in range(5):
+                daysNames.append(day.strftime('%A')[:3])
+                stringDates.append(day.strftime('%Y-%m-%d'))
+                day+=timedelta(days=1)
+
+            localCursor = self.localConn.cursor()
+            localCursor.execute(f"SELECT CONVERT(date,dispenseLogs.createdDate) as date, COUNT(DISTINCT [dlpatientID]) as patientId from dispenseLogs WHERE CONVERT(date,dispenseLogs.createdDate) in {tuple(stringDates)} GROUP BY CONVERT(date,dispenseLogs.createdDate)")
+            queryFiveDaysData=localCursor.fetchall()
+            queryFiveDaysDict = {row[0]:row[1] for row in queryFiveDaysData}
+            fiveDaysData = [queryFiveDaysDict[stringDate] if stringDate in queryFiveDaysDict else 0 for stringDate in stringDates]
+
+
+            series=QtCharts.QBarSeries()
+            bar1=QtCharts.QBarSet("bar1")
+
+            for yval in fiveDaysData:
+                bar1.append(yval)
+                
+            series.append(bar1)
+
+            chart=QtCharts.QChart()
+            chart.setMargins(QMargins(0, 10, 0, 0))
+            chart.legend().setVisible(False)
+            chart.addSeries(series)
+            chart.setAnimationOptions(QtCharts.QChart.AnimationOption.AllAnimations)
+
+            axisX=QtCharts.QBarCategoryAxis()
+            font=axisX.labelsFont()
+            font.setPixelSize(10)
+            axisX.setLabelsFont(font)
+            axisX.append(daysNames)
+            axisX.setGridLineVisible(False)
+            chart.addAxis(axisX,Qt.AlignmentFlag.AlignBottom)
+            series.attachAxis(axisX)
+
+            axisY=QtCharts.QValueAxis()
+            font=axisY.labelsFont()
+            font.setPixelSize(10)
+            axisY.setLabelsFont(font)
+            axisY.setLabelFormat('%d')
+            if all(value < 3 for value in fiveDaysData):
+                axisY.setRange(0, 3)
+            axisY.setTickCount(4)
+            chart.addAxis(axisY,Qt.AlignmentFlag.AlignLeft)
+            series.attachAxis(axisY)
+
+            # ========= old method =================
+            # self.patientGraph = QtCharts.QChartView()
+            # self.patientFrame.layout().addWidget(self.patientGraph)
+            # chart.setTitle("Last 5 days Patients")
+            # self.patientGraph.setChart(chart)
+
+            self.patientGraph = CustomChartView(chart, fiveDaysData)
+            self.patientGraph.setMinimumHeight(200)
+            self.patientGraph.setRenderHint(QPainter.RenderHint.Antialiasing)
+            label = QLabel("Last 5 days Patients")
+            label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            label.setStyleSheet("font-size: 14px; font-weight: bold;margin-top:10px")
+            layout.addWidget(label)
+            self.patientFrame.layout().addWidget(self.patientGraph)
+        except Exception as e:
+            print(e)
+
+class CustomChartView(QChartView):
+    def __init__(self, chart, values):
+        super().__init__(chart)
+        self.values = values
+
+    def drawLabels(self, painter):
+        chart = self.chart()
+        series = chart.series()[0]
+        barset = series.barSets()[0]
+        rect = chart.plotArea()
+        bar_width = rect.width() / len(self.values)
+        for i, value in enumerate(self.values):
+            # Calculate bar center
+            x = rect.left() + bar_width * (i + 0.5)
+            y = chart.mapToPosition(QPointF(i, value), series).y()
+            # label = f"{value:.1f}"
+            label = f"{value}"
+            painter.setFont(QFont("Arial", 8, QFont.Weight.Bold))
+            if value>0:
+                painter.drawText(int(x)-10, int(y)-5, label)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self.viewport())
+        self.drawLabels(painter)
+        painter.end()
 
 class Worker(QObject):
     chkPumpStatus=pyqtSignal(str)
