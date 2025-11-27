@@ -3,15 +3,15 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
 import os
 import serial.tools.list_ports
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QMargins, QPointF
 from otherFiles.common import sendPcbCommand
 from datetime import datetime, timedelta
-from PyQt6.QtGui import QPainter, QFont
 from PyQt6 import QtCharts
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QMargins, QPointF
+from PyQt6.QtGui import QPainter, QFont
 from PyQt6.QtCharts import QChartView
-from PyQt6.QtWidgets import QLabel
+from PyQt6.QtWidgets import QLabel, QTableWidgetItem
+from otherFiles.common import dictfetchall
 
-# from PyQt6.QtCharts import QChartView, QBarSeries, QChart, QBarCategoryAxis, QValueAxis
 
 STYLE_READY = (
     "background:#7FBA00;"
@@ -58,8 +58,97 @@ class DashboardWindow(QWidget):
             self.getDispenseDoseAmount()
             self.addDataToTotalDispenseSection()
             self.addDataToTotalPatientSection()
+            self.sortDashboardData(0)
         except Exception as e:
             print("load_Initial_Data error:",e)
+
+    def addDataToDashboard(self, dispenseData,triggerBy=None):
+        try:
+            data_len=len(dispenseData)
+            if dispenseData:
+                self.lbl_err_data.hide()
+                self.frame_11.show()
+                self.frame_12.show()
+                self.dispenseFrame.show()
+                self.patientFrame.show()
+                self.tableViewDashboard.show()
+                self.tableViewDashboard.setRowCount(data_len)
+
+                for row,row_data in enumerate(dispenseData):
+                    col=0
+                    rxID=QTableWidgetItem(" "+str(row_data['rxID']))
+                    self.tableViewDashboard.setItem(row,col,rxID)
+                    self.tableViewDashboard.setColumnWidth(col, 60)
+
+                    col+=1
+                    route=QTableWidgetItem(row_data['route'])
+                    self.tableViewDashboard.setItem(row,col,route)
+                    self.tableViewDashboard.setColumnWidth(col, 30)
+                    
+                    col+=1
+                    patient_name=QTableWidgetItem(row_data['lastName']+", "+row_data['firstName'])
+                    self.tableViewDashboard.setItem(row,col,patient_name)
+                    self.tableViewDashboard.setColumnWidth(col, 190)
+                    
+                    col+=1
+                    phn=QTableWidgetItem(str(row_data['patientID']))
+                    self.tableViewDashboard.setItem(row,col,phn)
+                    self.tableViewDashboard.setColumnWidth(col, 100)
+
+                    col+=1
+                    phone=QTableWidgetItem(str(row_data['areaCode'])+str(row_data['phone']))
+                    self.tableViewDashboard.setItem(row,col,phone)
+                    self.tableViewDashboard.setColumnWidth(col, 120)
+
+                    col+=1
+                    drug=QTableWidgetItem(row_data['rxDrug'])
+                    self.tableViewDashboard.setItem(row,col,drug)
+                    self.tableViewDashboard.setColumnWidth(col, 210)
+
+                    col+=1
+                    totProcessing=row_data['totProcessing']
+                    if totProcessing==int(totProcessing):
+                        totProcessing=int(totProcessing)
+                    dose=QTableWidgetItem(str(totProcessing)+"ml")
+                    self.tableViewDashboard.setColumnWidth(col, 40)
+                    self.tableViewDashboard.setItem(row,col,dose)
+            else:
+                self.tableViewDashboard.hide()
+                if triggerBy=="sortDashboard":
+                    self.frame_12.hide()
+                    self.frame_11.hide()
+                    self.dispenseFrame.hide()
+                    self.patientFrame.hide()
+        except Exception as e:
+            print(e)
+
+    def sortDashboardData(self,index):
+        try:
+            # currentDate = datetime(2024, 11, 20)
+            currentDate=datetime.now()
+            formattedCurrentDate = currentDate.strftime('%Y-%m-%d %H:%M:%S')
+            self.headingDashboard.setText("Dispense for the day " +currentDate.strftime("%b %d, %y"))
+
+            localCursor = self.localConn.cursor()
+            if index==0:
+                localCursor.execute(f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}' order by patient.lastName")
+            elif index==1:
+                localCursor.execute(f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}' order by route")
+            dispenseData=dictfetchall(localCursor)
+
+            filtered_data = {}
+            for row in dispenseData:
+                patient_id = row['patientID']
+                if patient_id not in filtered_data:
+                    filtered_data[patient_id] = row
+                else:
+                    if row['rxID'] > filtered_data[patient_id]['rxID']:
+                        filtered_data[patient_id] = row
+            dispenseData = list(filtered_data.values())  # Convert back to a list
+
+            self.addDataToDashboard(dispenseData,triggerBy="sortDashboard")
+        except Exception as e:
+            print(e)
 
     def listUsbPorts(self):
         try:
