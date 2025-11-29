@@ -34,11 +34,13 @@ STYLE_NOT_READY = (
 class DashboardWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import localConn, updatePcbComPort, leftPumpCalibrated, rightPumpCalibrated
+        from otherFiles.config import localConn, updatePcbComPort, leftPumpCalibrated, rightPumpCalibrated, leftPumpMedication, rightPumpMedication
         self.localConn = localConn
         self.updatePcbComPort = updatePcbComPort
         self.leftPumpCalibrated = leftPumpCalibrated
         self.rightPumpCalibrated = rightPumpCalibrated
+        self.leftPumpMedication = leftPumpMedication
+        self.rightPumpMedication = rightPumpMedication
         rootDir = os.path.dirname(os.path.dirname(__file__))
         ui_path = os.path.join(rootDir, "uiFiles", "dashboard.ui")
 
@@ -55,10 +57,12 @@ class DashboardWindow(QWidget):
             self.listUsbPorts()
             self.workerThread.start()
             self.workerThread.started.connect(self.worker.checkPumpStatusWorker)
-            self.getDispenseDoseAmount()
+            self.updateDispenseAmount()
             self.addDataToTotalDispenseSection()
             self.addDataToTotalPatientSection()
             self.sortDashboardData(0)
+            self.medPumpLeft.setText(self.leftPumpMedication)
+            self.medPumpRight.setText(self.rightPumpMedication)
         except Exception as e:
             print("load_Initial_Data error:",e)
 
@@ -218,7 +222,7 @@ class DashboardWindow(QWidget):
         except Exception as e:
             print("update_Pump_Status error:",e)
 
-    def getDispenseDoseAmount(self):
+    def updateDispenseAmount(self):
         try:
             currentDate=datetime.now()
             formattedCurrentDate = currentDate.strftime('%Y-%m-%d %H:%M:%S')
@@ -487,8 +491,7 @@ class Worker(QObject):
 
     def checkPumpStatusWorker(self):
         try:
-            machineResponse = sendPcbCommand(self.pcbComPort, 'check_status')
-            if machineResponse == "Success":
+            if self.pcbComPort:
                 self.chkPumpStatus.emit('ok')
             else:
                 self.chkPumpStatus.emit('error')
