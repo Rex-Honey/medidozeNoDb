@@ -51,6 +51,7 @@ class DashboardWindow(QWidget):
 
         uic.loadUi(ui_path, self)
         self.loadInitialData()
+        self.sortCombo.currentIndexChanged.connect(self.fetchDashboardData)
 
     def loadInitialData(self):
         try:
@@ -60,7 +61,7 @@ class DashboardWindow(QWidget):
             self.updateDispenseAmount()
             self.addDataToTotalDispenseSection()
             self.addDataToTotalPatientSection()
-            self.sortDashboardData(0)
+            self.fetchDashboardData()
             self.medPumpLeft.setText(self.leftPumpMedication)
             self.medPumpRight.setText(self.rightPumpMedication)
         except Exception as e:
@@ -126,18 +127,22 @@ class DashboardWindow(QWidget):
         except Exception as e:
             print(e)
 
-    def sortDashboardData(self,index):
+    def fetchDashboardData(self):
         try:
             # currentDate = datetime(2024, 11, 20)
             currentDate=datetime.now()
             formattedCurrentDate = currentDate.strftime('%Y-%m-%d %H:%M:%S')
             self.headingDashboard.setText("Dispense for the day " +currentDate.strftime("%b %d, %y"))
 
+            sortIndex=self.sortCombo.currentIndex()
+
             localCursor = self.localConn.cursor()
-            if index==0:
-                localCursor.execute(f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}' order by patient.lastName")
-            elif index==1:
-                localCursor.execute(f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}' order by route")
+            baseQuery=f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}'"
+            if sortIndex==0:
+                query=baseQuery + " order by patient.lastName"
+            elif sortIndex==1:
+                query=baseQuery + " order by route"
+            localCursor.execute(query)
             dispenseData=dictfetchall(localCursor)
 
             filtered_data = {}
