@@ -53,6 +53,7 @@ class DashboardWindow(QWidget):
         self.loadInitialData()
         self.sortCombo.currentIndexChanged.connect(self.fetchDashboardData)
         self.txtSearchPatient.textChanged.connect(self.fetchDashboardData)
+        self.btnStartFill.clicked.connect(self.switchToDispense)
 
     def loadInitialData(self):
         try:
@@ -474,6 +475,22 @@ class DashboardWindow(QWidget):
             self.patientFrame.layout().addWidget(self.patientGraph)
         except Exception as e:
             print(e)
+
+    def switchToDispense(self):
+        """Switch to the dispense screen when btnStartFill is clicked"""
+        try:
+            # Find the MainAppWindow parent
+            from pages.mainApp import MainAppWindow
+            parent = self.parentWidget()
+            while parent is not None:
+                if isinstance(parent, MainAppWindow):
+                    # Dispense is at index 1 in the sidebar items
+                    parent.switchPage(1)
+                    return
+                parent = parent.parentWidget()
+            print("MainAppWindow not found!")
+        except Exception as e:
+            print(f"Error switching to dispense: {e}")
 
 class CustomChartView(QChartView):
     def __init__(self, chart, values):
