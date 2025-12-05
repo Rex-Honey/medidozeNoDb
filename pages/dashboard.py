@@ -52,6 +52,7 @@ class DashboardWindow(QWidget):
         uic.loadUi(ui_path, self)
         self.loadInitialData()
         self.sortCombo.currentIndexChanged.connect(self.fetchDashboardData)
+        self.txtSearchPatient.textChanged.connect(self.fetchDashboardData)
 
     def loadInitialData(self):
         try:
@@ -67,15 +68,11 @@ class DashboardWindow(QWidget):
         except Exception as e:
             print("load_Initial_Data error:",e)
 
-    def addDataToDashboard(self, dispenseData,triggerBy=None):
+    def addDataToDashboard(self, dispenseData):
         try:
             data_len=len(dispenseData)
             if dispenseData:
                 self.lbl_err_data.hide()
-                self.frame_11.show()
-                self.frame_12.show()
-                self.dispenseFrame.show()
-                self.patientFrame.show()
                 self.tableViewDashboard.show()
                 self.tableViewDashboard.setRowCount(data_len)
 
@@ -119,11 +116,7 @@ class DashboardWindow(QWidget):
                     self.tableViewDashboard.setItem(row,col,dose)
             else:
                 self.tableViewDashboard.hide()
-                if triggerBy=="sortDashboard":
-                    self.frame_12.hide()
-                    self.frame_11.hide()
-                    self.dispenseFrame.hide()
-                    self.patientFrame.hide()
+                self.lbl_err_data.show()
         except Exception as e:
             print(e)
 
@@ -135,13 +128,34 @@ class DashboardWindow(QWidget):
             self.headingDashboard.setText("Dispense for the day " +currentDate.strftime("%b %d, %y"))
 
             sortIndex=self.sortCombo.currentIndex()
+            findPatient = str(self.txtSearchPatient.text()).strip()
 
             localCursor = self.localConn.cursor()
             baseQuery=f"SELECT rx.rxID, rx.rxDin, patient.route, patient.firstName, patient.lastName, refill.patientID, patient.areaCode, patient.phone, refill.totProcessing, rx.rxDrug from refill JOIN patient ON patient.id = refill.patientID LEFT JOIN rx on rx.rxID=refill.rxID WHERE CONVERT(date,refill.reefDate)='{formattedCurrentDate}'"
+            
+            conditions = []
+            
+            if findPatient:
+                if "," in findPatient:
+                    findPatient = findPatient.split(",")
+                    firstName = str(findPatient[1]).strip()
+                    lastName = str(findPatient[0]).strip()
+                    conditions.append(
+                        f" AND patient.firstName LIKE '%{firstName}%' AND patient.lastName LIKE '%{lastName}%'")
+                else:
+                    conditions.append(
+                        f" AND (patient.firstName LIKE '%{findPatient}%' OR patient.lastName LIKE '%{findPatient}%' OR patient.id LIKE '%{findPatient}%' OR patient.phone LIKE '%{findPatient}%' OR rx.rxID LIKE '%{findPatient}%')")
+            
+            if conditions:
+                baseQuery += "".join(conditions)
+            
             if sortIndex==0:
                 query=baseQuery + " order by patient.lastName"
             elif sortIndex==1:
                 query=baseQuery + " order by route"
+            else:
+                query=baseQuery
+            
             localCursor.execute(query)
             dispenseData=dictfetchall(localCursor)
 
@@ -155,7 +169,7 @@ class DashboardWindow(QWidget):
                         filtered_data[patient_id] = row
             dispenseData = list(filtered_data.values())  # Convert back to a list
 
-            self.addDataToDashboard(dispenseData,triggerBy="sortDashboard")
+            self.addDataToDashboard(dispenseData)
         except Exception as e:
             print(e)
 

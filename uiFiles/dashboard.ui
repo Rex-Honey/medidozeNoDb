@@ -197,7 +197,7 @@ font-weight:700;</string>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txtSearchPatientDashboard">
+                <widget class="QLineEdit" name="txtSearchPatient">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -436,7 +436,7 @@ background-color:rgb(218, 221, 222)
               </column>
              </widget>
             </item>
-            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+            <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
              <widget class="QLabel" name="lbl_err_data">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -445,11 +445,11 @@ background-color:rgb(218, 221, 222)
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">font-size: 14pt;
+               <string notr="true">font-size: 18pt;
 font-weight:700;</string>
               </property>
               <property name="text">
-               <string>No Record Found.</string>
+               <string>No Record Found</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
