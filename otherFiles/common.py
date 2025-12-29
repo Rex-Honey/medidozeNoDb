@@ -122,7 +122,7 @@ def sendPcbCommand(
 ) -> Union[str, Exception]:
     try:
         if not port:
-            return
+            return "Machine is disconnected. Please connect the machine"
 
         if logCommand:
             print(command)
