@@ -38,12 +38,20 @@ class PrimeWindow(QWidget):
             self.btnPrimePumpLeftPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:lightgrey;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
             self.btnPrimePumpRightPrime.setDisabled(True)
             self.btnPrimePumpRightPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:lightgrey;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
+            if self.workerStartedSlot is not None:
+                try:
+                    self.workerThread.started.disconnect(self.workerStartedSlot)
+                except TypeError:
+                    pass
+                self.workerStartedSlot = None
             if pumpPosition == "Left":
+                self.workerStartedSlot = partial(self.worker.primePumpWorker, "dispense_pump_a 50ml")
+                self.workerThread.started.connect(self.workerStartedSlot)
                 self.workerThread.start()
-                self.workerThread.started.connect(partial(self.worker.primePumpWorker, "dispense_pump_a 50ml"))
             else:
+                self.workerStartedSlot = partial(self.worker.primePumpWorker, "dispense_pump_b 50ml")
+                self.workerThread.started.connect(self.workerStartedSlot)
                 self.workerThread.start()
-                self.workerThread.started.connect(partial(self.worker.primePumpWorker, "dispense_pump_b 50ml"))
         except Exception as e:
             print(e)
 
@@ -88,14 +96,10 @@ class Worker(QObject):
         super().__init__()
         from otherFiles.config import pcbComPort
         self.pcbComPort = pcbComPort
-        self.count = 0
 
     def primePumpWorker(self,command):
         try:
             print(" -- prime Pump Worker --")
-            self.count+=1
-            if self.count>1:
-                return
             machineResponse = sendPcbCommand(
                 self.pcbComPort,
                 command,
