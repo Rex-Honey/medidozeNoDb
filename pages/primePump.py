@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6 import uic
 from PyQt6.QtCore import QObject, pyqtSignal, QThread, QTimer
 import os, pyodbc
-from otherFiles.common import sendPcbCommand
+from otherFiles.common import sendPcbCommand, clearInfoMessages
 from functools import partial
 
 
@@ -90,7 +90,7 @@ class PrimeWindow(QWidget):
             else:
                 self.infoPrime.setText("Prime Pump Done")
                 self.infoPrime.setStyleSheet("background:lightgreen;border:1px solid lightgreen;color:green;padding:5px;border-radius:none;font-size:9pt")
-            QTimer.singleShot(2000, self.clearInfoMessages)
+            QTimer.singleShot(2000, partial(clearInfoMessages, self.infoPrime))
             self.workerThread.quit()
             self.workerThread.wait()
             if self.workerStartedSlot is not None:
@@ -99,13 +99,6 @@ class PrimeWindow(QWidget):
                 except TypeError:
                     pass
                 self.workerStartedSlot = None
-        except Exception as e:
-            print(e)
-
-    def clearInfoMessages(self):
-        try:
-            self.infoPrime.setText("")
-            self.infoPrime.setStyleSheet("background:none")
         except Exception as e:
             print(e)
 

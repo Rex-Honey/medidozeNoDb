@@ -164,3 +164,10 @@ def sendPcbCommand(
     except Exception as error:
         print("sendPcbCommand error", error)
         return error
+
+def clearInfoMessages(infoWidget):
+    try:
+        infoWidget.setText("")
+        infoWidget.setStyleSheet("background:none")
+    except Exception as e:
+        print(e)
