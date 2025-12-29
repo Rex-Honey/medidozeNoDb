@@ -6,6 +6,25 @@ from otherFiles.common import sendPcbCommand
 from functools import partial
 
 
+ENABLE_BUTTON_STYLE = (
+    "padding:10px 20px;\n"
+    "border:none;\n"
+    "background:#48C9E3;\n"
+    "color:white;\n"
+    "border-radius:6%;\n"
+    "font-size:12pt;\n"
+    "font-weight:700"
+)
+
+DISABLED_BUTTON_STYLE = (
+    "padding:10px 20px;\n"
+    "border:none;\n"
+    "background:lightgrey;\n"
+    "color:white;\n"
+    "border-radius:6%;\n"
+    "font-size:12pt;\n"
+    "font-weight:700"
+)
 
 class PrimeWindow(QWidget):
     def __init__(self):
@@ -35,9 +54,9 @@ class PrimeWindow(QWidget):
             print("primePump")
             self.worker.count=0
             self.btnPrimePumpLeftPrime.setDisabled(True)
-            self.btnPrimePumpLeftPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:lightgrey;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
+            self.btnPrimePumpLeftPrime.setStyleSheet(DISABLED_BUTTON_STYLE)
             self.btnPrimePumpRightPrime.setDisabled(True)
-            self.btnPrimePumpRightPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:lightgrey;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
+            self.btnPrimePumpRightPrime.setStyleSheet(DISABLED_BUTTON_STYLE)
             if self.workerStartedSlot is not None:
                 try:
                     self.workerThread.started.disconnect(self.workerStartedSlot)
@@ -58,9 +77,9 @@ class PrimeWindow(QWidget):
     def responsePrimePump(self, status, msg):
         try:
             self.btnPrimePumpLeftPrime.setDisabled(False)
-            self.btnPrimePumpLeftPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:#48C9E3;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
+            self.btnPrimePumpLeftPrime.setStyleSheet(ENABLE_BUTTON_STYLE)
             self.btnPrimePumpRightPrime.setDisabled(False)
-            self.btnPrimePumpRightPrime.setStyleSheet("padding:10px 20px;\nborder:none;\nbackground:#48C9E3;\ncolor:white;\nborder-radius:6%;\nfont-size:12pt;\nfont-weight:700")
+            self.btnPrimePumpRightPrime.setStyleSheet(ENABLE_BUTTON_STYLE)
             if status=="error":
                 print("Error: ",msg)
                 if "could not open port" in msg:
