@@ -49,7 +49,6 @@ class PrimeWindow(QWidget):
     def primePump(self,pumpPosition=None):
         try:
             print("primePump")
-            self.worker.count=0
             self.btnPrimePumpLeftPrime.setDisabled(True)
             self.btnPrimePumpLeftPrime.setStyleSheet(DISABLED_BUTTON_STYLE)
             self.btnPrimePumpRightPrime.setDisabled(True)

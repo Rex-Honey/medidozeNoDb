@@ -77,7 +77,8 @@ font-weight: 700;
 padding:10px 0px 0px 0px;
 margin-top:12px;
 font-family:Nirmala UI;
-font-size:15pt
+font-size:15pt;
+border-radius:10%;
 }
 QGroupBox:title{
 subcontrol-origin: margin;
@@ -216,7 +217,8 @@ font-weight: 700;
 padding:10px 0px 0px 0px;
 margin-top:12px;
 font-family:Nirmala UI;
-font-size:15pt
+font-size:15pt;
+border-radius:10%;
 }
 QGroupBox:title{
 subcontrol-origin: margin;
