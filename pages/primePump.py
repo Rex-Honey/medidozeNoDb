@@ -29,10 +29,7 @@ DISABLED_BUTTON_STYLE = (
 class PrimeWindow(QWidget):
     def __init__(self):
         super().__init__()
-        from otherFiles.config import config, userData, localConn, leftPumpMedication, rightPumpMedication
-        self.config = config
-        self.userData = userData
-        self.local_conn = localConn
+        from otherFiles.config import leftPumpMedication, rightPumpMedication
         self.leftPumpMedication = leftPumpMedication
         self.rightPumpMedication = rightPumpMedication
         rootDir = os.path.dirname(os.path.dirname(__file__))
@@ -82,7 +79,7 @@ class PrimeWindow(QWidget):
             self.btnPrimePumpRightPrime.setStyleSheet(ENABLE_BUTTON_STYLE)
             if status=="error":
                 print("Error: ",msg)
-                if "could not open port" in msg:
+                if "Machine is disconnected" in msg:
                     self.infoPrime.setText("Machine is disconnected. Please connect the machine")
                 else:
                     self.infoPrime.setText("Something went wrong. Please try again later.")
